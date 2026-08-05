@@ -183,17 +183,20 @@
      Add / remove / reorder tiles freely as projects come and go.
      ═══════════════════════════════════════════════════════════════════════════ */
   var PORTAL_TITLE = 'OneStream UX Portal';
-  var LAST_UPDATED = 'July 31, 2026';   // shown under the title
+  var LAST_UPDATED = 'August 5, 2026';   // shown under the title
 
   // ── Themed per-project icons ──────────────────────────────────────────────
   var ICON_ESG  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>';
   var ICON_LCM  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3a9 9 0 0 0-9 9"/></svg>';
   var ICON_O365 = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>';
+  var ICON_LIM  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="7" cy="18" r="2" fill="#fff"/></svg>';
 
   var TILES = [
     { title:'OneStream ESG',        tag:'Live', desc:'ESG Portal prototype — sustainability data collection, disclosure and reporting.', url:'https://esg-beige-one.vercel.app/portal.html', icon:ICON_ESG },
     { title:'Lifecycle Management',  tag:'Live', desc:'LCM prototype — package, migrate and govern application changes across environments.', url:'https://lcm-onestreamux.vercel.app/portal.html', icon:ICON_LCM },
     { title:'365 Excel Add-In',      tag:'Live', desc:'OneStream 365 Excel Add-In prototype — QuickViews and spreadsheet-native reporting.', url:'https://o365-zeta.vercel.app/portal.html', icon:ICON_O365 },
+    // TODO: replace URL with the real Vercel domain once LIM is imported in Vercel.
+    { title:'Line Item Modeler',     tag:'In Review', desc:'Line Item Modeler prototype — model people-planning line items and formulas (People Planning).', url:'https://lim-onestreamux.vercel.app/portal.html', icon:ICON_LIM },
   ];
   /* ═══════════════════════════════════════════════════════════════════════════ */
 
