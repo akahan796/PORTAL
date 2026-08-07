@@ -196,7 +196,7 @@
     { title:'Lifecycle Management',  tag:'Live', desc:'LCM prototype — package, migrate and govern application changes across environments.', url:'https://lcm-onestreamux.vercel.app/portal.html', icon:ICON_LCM },
     { title:'365 Excel Add-In',      tag:'Live', desc:'OneStream 365 Excel Add-In prototype — QuickViews and spreadsheet-native reporting.', url:'https://o365-zeta.vercel.app/portal.html', icon:ICON_O365 },
     // TODO: replace URL with the real Vercel domain once LIM is imported in Vercel.
-    { title:'Line Item Modeler',     tag:'In Review', desc:'Line Item Modeler prototype — model people-planning line items and formulas (People Planning).', url:'https://lim-onestreamux.vercel.app/portal.html', icon:ICON_LIM },
+    { title:'Line Item Modeler',     tag:'In Review', desc:'Line Item Modeler prototype — model people-planning line items and formulas (People Planning).', url:'https://lim-smoky.vercel.app/portal.html', icon:ICON_LIM },
   ];
   /* ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -220,7 +220,7 @@
       '<h3>' + esc(t.title) + '</h3>' +
       (t.tag ? '<span class="tag">' + esc(t.tag) + '</span>' : '') +
       '<p class="desc">' + esc(t.desc) + '</p>' +
-      '<a class="btn-open" href="' + esc(t.url) + '"' + (t.sameTab ? '' : ' target="_blank" rel="noopener noreferrer"') + '>Open' + OPEN_ICON + '</a>' +
+      '<a class="btn-open" href="' + esc(t.url) + '">Open' + OPEN_ICON + '</a>' +
       '<button class="btn-copy" type="button" data-url="' + esc(t.url) + '">' + COPY_ICON + '<span>Copy link</span></button>';
     host.appendChild(el);
   });
