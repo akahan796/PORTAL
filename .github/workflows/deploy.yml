@@ -17,6 +17,9 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+      # Deploy as the token owner, not the commit author (avoids Vercel's Hobby
+      # "commit author not a team member" block on collaborator commits).
+      - run: rm -rf .git
       - uses: actions/setup-node@v4
         with:
           node-version: 20
