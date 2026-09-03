@@ -243,8 +243,16 @@
     font-family:inherit;font-size:14px;font-weight:600;padding:0 10px;cursor:pointer;outline:none;}
   .va-select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.14);}
   /* team view — users table */
-  .table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.05);}
+  .table-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
   .table-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px;border-bottom:1px solid var(--border);}
+  .table-showrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--border);}
+  .show-radios{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .show-label{font-size:14px;font-weight:600;color:var(--text);}
+  .radio{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--text);cursor:pointer;font-weight:500;}
+  .radio input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer;margin:0;}
+  .actions-btn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+  .actions-btn:hover{background:var(--surface-hover);}
+  .actions-btn svg{width:15px;height:15px;color:var(--muted);}
   .tt-search{position:relative;flex:1 1 260px;min-width:200px;}
   .tt-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted-2);}
   .tt-search input{width:100%;height:40px;border:1px solid var(--border-strong);border-radius:8px;padding:0 12px 0 36px;font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;}
@@ -395,11 +403,18 @@
             <input id="team-search" type="search" placeholder="Search for member" autocomplete="off" aria-label="Search for member" />
           </div>
           <select id="team-role-filter" class="tt-select" aria-label="Filter by role"></select>
-          <select id="team-status-filter" class="tt-select" aria-label="Filter by status">
-            <option value="All">All statuses</option>
-            <option value="Active">Active</option>
-            <option value="Invited">Invited</option>
-          </select>
+        </div>
+        <div class="table-showrow">
+          <div class="show-radios">
+            <span class="show-label">Show:</span>
+            <label class="radio"><input type="radio" name="team-status" value="All" checked> All</label>
+            <label class="radio"><input type="radio" name="team-status" value="Active"> Active</label>
+            <label class="radio"><input type="radio" name="team-status" value="Invited"> Invited</label>
+          </div>
+          <button class="actions-btn js-demo-action" type="button" data-action="Bulk actions">
+            Actions
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
         </div>
         <div class="table-wrap">
           <table class="user-table">
@@ -787,7 +802,8 @@
     var tOverlay = document.getElementById('team-overlay'), tPanel = document.getElementById('team-panel');
     var tbody = document.getElementById('user-tbody'), subEl = document.getElementById('team-view-sub');
     var teamEmpty = document.getElementById('team-empty'), roleSel = document.getElementById('tm-role');
-    var searchT = document.getElementById('team-search'), roleFilter = document.getElementById('team-role-filter'), statusFilter = document.getElementById('team-status-filter');
+    var searchT = document.getElementById('team-search'), roleFilter = document.getElementById('team-role-filter');
+    function statusValue(){ var r = document.querySelector('input[name="team-status"]:checked'); return r ? r.value : 'All'; }
     var checkAll = document.getElementById('team-check-all');
     ROLE_ORDER.forEach(function(r){ var o = document.createElement('option'); o.value = r; o.textContent = r; roleSel.appendChild(o); });
     roleSel.value = 'Designer';
@@ -797,7 +813,7 @@
     var DOTS = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 
     function filteredTeam(){
-      var q=(searchT.value||'').trim().toLowerCase(), rf=roleFilter.value, sf=statusFilter.value;
+      var q=(searchT.value||'').trim().toLowerCase(), rf=roleFilter.value, sf=statusValue();
       return TEAM.filter(function(m){
         if (rf!=='All' && m.role!==rf) return false;
         if (sf!=='All' && (m.status||'Active')!==sf) return false;
@@ -830,7 +846,7 @@
 
     searchT.addEventListener('input', renderTeam);
     roleFilter.addEventListener('change', renderTeam);
-    statusFilter.addEventListener('change', renderTeam);
+    document.querySelectorAll('input[name="team-status"]').forEach(function(r){ r.addEventListener('change', renderTeam); });
     checkAll.addEventListener('change', function(){ Array.prototype.forEach.call(tbody.querySelectorAll('.tbl-check'), function(c){ c.checked = checkAll.checked; }); });
 
     // Sidebar "Team Management" / "Your Team" → switch to the team view
