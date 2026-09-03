@@ -211,6 +211,11 @@
   .role-badge{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px;color:#fff;flex:0 0 auto;white-space:nowrap;}
   .team-row .trm{width:28px;height:28px;border:0;background:none;border-radius:7px;color:var(--muted-2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
   .team-row .trm:hover{background:var(--surface-hover);color:#c0392b;}
+  .hd-secondary{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;
+    background:var(--surface);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s ease,border-color .15s ease;}
+  .hd-secondary:hover{background:var(--surface-hover);border-color:var(--muted-2);}
+  .hd-secondary svg{width:16px;height:16px;}
+  @media(max-width:1040px){ .hd-secondary span{display:none;} .hd-secondary{padding:0 11px;} }
 </style>
 </head>
 <body>
@@ -226,6 +231,10 @@
     </div>
     <div class="appbar-right">
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode"></button>
+      <button class="hd-secondary gate-manage js-open-team" type="button" title="New team member">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
+        <span>New team member</span>
+      </button>
       <button class="hd-new js-new-proj gate-create" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
         <span>New project</span>
