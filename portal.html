@@ -59,8 +59,7 @@
     border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .2s ease;
     display:flex;flex-direction:column;overflow-y:auto;padding:16px 12px;}
   body.sb-open .sidebar{transform:translateX(0);}
-  .nav-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);
-    padding:6px 12px;margin:6px 0 2px;}
+  .nav-label{font-size:12px;font-weight:700;color:var(--muted-2);padding:6px 12px;margin:6px 0 2px;}
   .nav-item{display:flex;align-items:center;gap:12px;height:42px;padding:0 12px;border-radius:8px;border:0;width:100%;
     background:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;
     transition:background .12s ease,color .12s ease;text-align:left;}
@@ -94,7 +93,7 @@
   /* ── Sections + tiles ── */
   .section{margin:0 0 30px;}
   .section-hd{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0 2px;}
-  .section-hd h2{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted-2);margin:0;}
+  .section-hd h2{font-size:13px;font-weight:700;color:var(--muted-2);margin:0;}
   .section-hd .count{font-size:12px;font-weight:600;color:var(--muted-2);background:var(--surface-2);border-radius:10px;padding:1px 8px;}
   .section-hd .rule{flex:1 1 auto;height:1px;background:var(--border);}
   .tiles{display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));align-items:stretch;}
@@ -170,7 +169,7 @@
   .user-dd{position:absolute;top:52px;right:0;width:266px;background:var(--surface);border:1px solid var(--border);border-radius:12px;
     box-shadow:0 16px 40px -12px rgba(15,23,42,.28);padding:8px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:all .15s ease;z-index:70;}
   .user-dd.open{opacity:1;visibility:visible;transform:translateY(0);}
-  .dd-head{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2);padding:8px 10px 6px;}
+  .dd-head{font-size:12px;font-weight:600;color:var(--muted-2);padding:8px 10px 6px;}
   .dd-head .demo{color:#fff;background:var(--brand);border-radius:5px;padding:1px 6px;letter-spacing:.04em;}
   .dd-role{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:0;border-radius:9px;background:none;cursor:pointer;font-family:inherit;text-align:left;}
   .dd-role:hover{background:var(--surface-hover);}
@@ -202,7 +201,7 @@
   body.tier-admin .gate-manage, body.tier-manager .gate-manage{display:flex !important;}
   .team-add{border:1px solid var(--border);border-radius:12px;padding:16px;margin:0 0 22px;background:var(--surface-2);}
   .team-add .btn-primary{width:100%;margin-top:2px;}
-  .team-list-hd{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2);margin:0 0 6px;}
+  .team-list-hd{font-size:13px;font-weight:700;color:var(--muted-2);margin:0 0 6px;}
   .team-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border);}
   .team-row .tav{width:36px;height:36px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:0 0 auto;}
   .team-row .tmeta{flex:1 1 auto;min-width:0;}
@@ -216,6 +215,13 @@
   .hd-secondary:hover{background:var(--surface-hover);border-color:var(--muted-2);}
   .hd-secondary svg{width:16px;height:16px;}
   @media(max-width:1040px){ .hd-secondary span{display:none;} .hd-secondary{padding:0 11px;} }
+  .team-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;}
+  .team-tab{height:30px;padding:0 11px;border:1px solid var(--border-strong);border-radius:999px;background:var(--surface);color:var(--muted);
+    font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .12s ease;}
+  .team-tab:hover{border-color:var(--brand);color:var(--text);}
+  .team-tab.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .team-tab .tct{font-size:11px;font-weight:700;opacity:.7;}
+  .team-empty{text-align:center;color:var(--muted-2);font-size:13px;padding:24px 0;}
 </style>
 </head>
 <body>
@@ -246,7 +252,7 @@
           <svg class="uc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="user-dd" id="user-dd">
-          <div class="dd-head"><span class="demo">DEMO</span> &nbsp;view portal as</div>
+          <div class="dd-head"><span class="demo">Demo</span> &nbsp;View portal as</div>
           <div id="dd-roles"></div>
           <div class="dd-div"></div>
           <a class="dd-item" href="/api/logout">
@@ -363,6 +369,7 @@
         <button class="btn-primary" id="tm-add" type="button">Add team member</button>
       </div>
       <div class="team-list-hd">Team members <span id="tm-count"></span></div>
+      <div class="team-tabs" id="team-tabs"></div>
       <div id="team-list"></div>
     </div>
   </aside>
@@ -655,9 +662,26 @@
     ROLE_ORDER.forEach(function(r){ var o = document.createElement('option'); o.value = r; o.textContent = r; roleSel.appendChild(o); });
     roleSel.value = 'Designer';
 
+    var activeTeamFilter = 'All';
+    var tabsHost = document.getElementById('team-tabs');
+    function buildTabs(){
+      tabsHost.innerHTML = '';
+      ['All'].concat(ROLE_ORDER).forEach(function(tp){
+        var count = tp==='All' ? TEAM.length : TEAM.filter(function(m){ return m.role===tp; }).length;
+        var b = document.createElement('button'); b.type = 'button';
+        b.className = 'team-tab' + (tp===activeTeamFilter ? ' active' : ''); b.setAttribute('data-filter', tp);
+        b.innerHTML = esc(tp) + ' <span class="tct">' + count + '</span>';
+        tabsHost.appendChild(b);
+      });
+    }
+    tabsHost.addEventListener('click', function(e){ var t = e.target.closest('.team-tab'); if (!t) return; activeTeamFilter = t.getAttribute('data-filter'); buildTabs(); renderTeam(); });
+
     function renderTeam(){
-      listHost.innerHTML = ''; tCount.textContent = '(' + TEAM.length + ')';
-      TEAM.forEach(function(m){
+      tCount.textContent = '(' + TEAM.length + ')';
+      var list = activeTeamFilter==='All' ? TEAM : TEAM.filter(function(m){ return m.role===activeTeamFilter; });
+      listHost.innerHTML = '';
+      if (!list.length){ listHost.innerHTML = '<div class="team-empty">No ' + esc(activeTeamFilter) + 's here yet.</div>'; return; }
+      list.forEach(function(m){
         var row = document.createElement('div'); row.className = 'team-row';
         var canRemove = m.id !== currentMember.id;
         row.innerHTML =
@@ -668,7 +692,7 @@
         listHost.appendChild(row);
       });
     }
-    function openTeam(){ renderTeam(); tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
+    function openTeam(){ buildTabs(); renderTeam(); tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
     function closeTeam(){ tOverlay.classList.remove('open'); tPanel.classList.remove('open'); }
 
     document.querySelectorAll('.js-open-team').forEach(function(b){ b.addEventListener('click', openTeam); });
@@ -682,7 +706,7 @@
       if (!name){ nameEl.focus(); nameEl.style.borderColor = '#dc2626'; return; }
       nameEl.style.borderColor = '';
       var m = { id:'u-' + Date.now(), name:name, email:(emailEl.value||'').trim(), role:roleSel.value };
-      TEAM.push(m); saveTeam(); renderTeam(); buildDD();
+      TEAM.push(m); saveTeam(); buildTabs(); renderTeam(); buildDD();
       nameEl.value = ''; emailEl.value = ''; roleSel.value = 'Designer';
       toast('Added ' + m.name + ' · ' + m.role);
     });
@@ -691,7 +715,7 @@
       var rm = e.target.closest('.trm'); if (!rm) return;
       var id = rm.getAttribute('data-id'); if (id === currentMember.id) return;
       var gone = memberById(id);
-      TEAM = TEAM.filter(function(x){ return x.id !== id; }); saveTeam(); renderTeam(); buildDD();
+      TEAM = TEAM.filter(function(x){ return x.id !== id; }); saveTeam(); buildTabs(); renderTeam(); buildDD();
       toast('Removed ' + (gone ? gone.name : 'team member'));
     });
 
