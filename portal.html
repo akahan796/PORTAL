@@ -102,8 +102,6 @@
   .tile{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:12px;
     padding:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);transition:box-shadow .15s ease,border-color .15s ease,transform .15s ease;}
   .tile:hover{box-shadow:0 10px 28px rgba(20,30,60,.10);border-color:var(--border-strong);transform:translateY(-2px);}
-  .tile-ic{height:30px;margin-bottom:14px;display:flex;align-items:center;color:var(--brand);}
-  .tile-ic svg{display:block;}
   .tile h3{font-size:17px;font-weight:700;margin:0 0 10px;line-height:22px;color:var(--text);}
   .tag{align-self:flex-start;font-size:12px;font-weight:600;line-height:16px;padding:3px 9px;border-radius:5px;margin:0 0 14px;}
   .tag.st-live{background:#E8F5EE;color:#16794A;}
@@ -275,23 +273,16 @@
   var PORTAL_TITLE = 'OneStream UX Portal';
   var LAST_UPDATED = 'August 5, 2026';
 
-  var ICON_ESG  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>';
-  var ICON_LCM  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M21 3a9 9 0 0 0-9 9"/></svg>';
-  var ICON_O365 = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>';
-  var ICON_LIM  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/><circle cx="9" cy="6" r="2" fill="#fff"/><circle cx="15" cy="12" r="2" fill="#fff"/><circle cx="7" cy="18" r="2" fill="#fff"/></svg>';
-  var ICON_ODS  = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><circle cx="17.5" cy="6.5" r="3.5"/><path d="M6.5 14 3 20h7z"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
-
   var PROJECTS = [
-    { section:'Prototypes', title:'OneStream ESG',       status:'Live',      updated:'Aug 3, 2026',  owner:'', version:'', desc:'ESG Portal prototype — sustainability data collection, disclosure and reporting.', url:'https://esg-beige-one.vercel.app/portal.html', icon:ICON_ESG },
-    { section:'Prototypes', title:'Lifecycle Management', status:'Live',      updated:'Jul 24, 2026', owner:'', version:'', desc:'LCM prototype — package, migrate and govern application changes across environments.', url:'https://lcm-onestreamux.vercel.app/portal.html', icon:ICON_LCM },
-    { section:'Prototypes', title:'365 Excel Add-In',     status:'Live',      updated:'Jul 21, 2026', owner:'', version:'', desc:'OneStream 365 Excel Add-In prototype — QuickViews and spreadsheet-native reporting.', url:'https://o365-zeta.vercel.app/portal.html', icon:ICON_O365 },
-    { section:'Prototypes', title:'Line Item Modeler',    status:'In Review', updated:'Aug 5, 2026',  owner:'', version:'', desc:'Line Item Modeler prototype — model people-planning line items and formulas (People Planning).', url:'https://lim-smoky.vercel.app/portal.html', icon:ICON_LIM },
-    { section:'Design System', title:'Design System (ODS)', status:'Live',    updated:'',             owner:'', version:'', desc:'OneStream Design System — foundations, tokens, components and patterns.', url:'https://ods-lake.vercel.app/', icon:ICON_ODS },
+    { section:'Prototypes', title:'OneStream ESG',       status:'Live',      updated:'Aug 3, 2026',  owner:'', version:'', desc:'ESG Portal prototype — sustainability data collection, disclosure and reporting.', url:'https://esg-beige-one.vercel.app/portal.html' },
+    { section:'Prototypes', title:'Lifecycle Management', status:'Live',      updated:'Jul 24, 2026', owner:'', version:'', desc:'LCM prototype — package, migrate and govern application changes across environments.', url:'https://lcm-onestreamux.vercel.app/portal.html' },
+    { section:'Prototypes', title:'365 Excel Add-In',     status:'Live',      updated:'Jul 21, 2026', owner:'', version:'', desc:'OneStream 365 Excel Add-In prototype — QuickViews and spreadsheet-native reporting.', url:'https://o365-zeta.vercel.app/portal.html' },
+    { section:'Prototypes', title:'Line Item Modeler',    status:'In Review', updated:'Aug 5, 2026',  owner:'', version:'', desc:'Line Item Modeler prototype — model people-planning line items and formulas (People Planning).', url:'https://lim-smoky.vercel.app/portal.html' },
+    { section:'Design System', title:'Design System (ODS)', status:'Live',    updated:'',             owner:'', version:'', desc:'OneStream Design System — foundations, tokens, components and patterns.', url:'https://ods-lake.vercel.app/' },
   ];
   var SECTION_ORDER = ['Prototypes', 'Design System', 'Archived'];
   /* ═══════════════════════════════════════════════════════════════════════════ */
 
-  var LINK_ICON = '<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M2.5 8h19"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>';
   var OPEN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
   var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
   var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -332,8 +323,7 @@
     if (t.version) meta.push('<b>' + esc(t.version) + '</b>');
     var metaHTML = meta.length ? '<div class="meta">' + meta.join(' <span class="sep">·</span> ') + '</div>' : '';
     var stCls = STATUS_CLASS[t.status] || 'st-live';
-    return '<div class="tile-ic">' + (t.icon || LINK_ICON) + '</div>' +
-      '<h3>' + esc(t.title) + '</h3>' +
+    return '<h3>' + esc(t.title) + '</h3>' +
       (t.status ? '<span class="tag ' + stCls + '">' + esc(t.status) + '</span>' : '') +
       '<p class="desc">' + esc(t.desc) + '</p>' + metaHTML +
       '<a class="btn-open" href="' + esc(t.url) + '">Open' + OPEN_ICON + '</a>' +
