@@ -313,7 +313,6 @@
       </button>
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode"></button>
       <div class="view-as">
-        <span class="va-label"><span class="demo">Demo</span> view as</span>
         <select id="role-select" class="va-select" aria-label="View portal as"></select>
       </div>
       <a class="icon-btn" href="/api/logout" title="Sign out">
@@ -781,8 +780,9 @@
 
     function buildSelect(){
       sel.innerHTML = '';
-      TEAM.forEach(function(m){ var o = document.createElement('option'); o.value = m.id; o.textContent = m.name + ' — ' + m.role; sel.appendChild(o); });
+      TEAM.forEach(function(m){ var o = document.createElement('option'); o.value = m.id; o.textContent = m.name; o.title = m.role; sel.appendChild(o); });
       sel.value = currentMember.id;
+      sel.title = currentMember.name + ' — ' + currentMember.role;
     }
     function applyTier(){ body.classList.remove('tier-admin','tier-manager','tier-contributor','tier-viewer'); body.classList.add('tier-' + currentTier); }
     function canManage(){ return currentTier==='admin' || currentTier==='manager'; }
