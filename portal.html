@@ -321,9 +321,6 @@
         <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="5" r="1.7"/><circle cx="12" cy="5" r="1.7"/><circle cx="19" cy="5" r="1.7"/><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/><circle cx="5" cy="19" r="1.7"/><circle cx="12" cy="19" r="1.7"/><circle cx="19" cy="19" r="1.7"/></svg>
       </button>
       <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode"></button>
-      <div class="view-as">
-        <select id="role-select" class="va-select" aria-label="View portal as"></select>
-      </div>
       <a class="icon-btn" href="/api/logout" title="Sign out">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </a>
@@ -349,7 +346,7 @@
     <div class="nav-label">Project Management</div>
     <button class="nav-item js-view-ooto" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
-      <span>Alex's OOTO Guide</span>
+      <span>Alex's OOTO</span>
     </button>
     <div class="nav-div"></div>
     <div class="nav-label">Actions</div>
@@ -458,7 +455,7 @@
       </nav>
       <div class="content-hd">
         <div>
-          <h1>Alex's OOTO Guide</h1>
+          <h1>Alex's OOTO</h1>
           <p class="view-sub">Out-of-office coverage &amp; key contacts</p>
         </div>
       </div>
@@ -612,9 +609,8 @@
   function saveTeam(){ try{ localStorage.setItem('portal-team', JSON.stringify(TEAM)); }catch(e){} }
   function memberById(id){ for (var i=0;i<TEAM.length;i++){ if (TEAM[i].id===id) return TEAM[i]; } return null; }
 
-  var savedRole = (function(){ try{ return localStorage.getItem('portal-role'); }catch(e){ return null; } })();
-  var currentMember = memberById(savedRole) || TEAM[0];
-  var currentTier = tierOf(currentMember.role);
+  // Single password login (@dmin123) → full admin access. No per-user personas.
+  var currentTier = 'admin';
 
   function toast(msg){
     var t = document.getElementById('toast'); if (!t) return;
@@ -655,11 +651,7 @@
     if (t.owner)   meta.push('Owner <b>' + esc(t.owner) + '</b>');
     if (t.version) meta.push('<b>' + esc(t.version) + '</b>');
     var metaHTML = meta.length ? '<div class="meta">' + meta.join(' <span class="sep">·</span> ') + '</div>' : '';
-    var stCls = STATUS_CLASS[t.status] || 'st-live';
-    var roleBtn = currentTier === 'viewer'
-      ? '<button class="tile-role js-demo-action" type="button" title="Leave feedback" data-action="Leave feedback on ' + esc(t.title) + '">' + CHAT_ICON + '</button>'
-      : '<button class="tile-role js-demo-action" type="button" title="Edit project" data-action="Edit ' + esc(t.title) + '">' + EDIT_ICON + '</button>';
-    return roleBtn + '<h3>' + esc(t.title) + '</h3>' +
+    return '<h3>' + esc(t.title) + '</h3>' +
       '<p class="desc">' + esc(t.desc) + '</p>' + metaHTML +
       '<a class="btn-open" href="' + esc(t.url) + '">Open' + OPEN_ICON + '</a>' +
       '<button class="btn-copy" type="button" data-url="' + esc(t.url) + '">' + COPY_ICON + '<span>Copy link</span></button>';
@@ -702,7 +694,7 @@
     });
   });
 
-  // Sidebar: Project Management → Alex's OOTO Guide
+  // Sidebar: Project Management → Alex's OOTO
   var ootoNav = document.querySelector('.js-view-ooto');
   if (ootoNav) ootoNav.addEventListener('click', function(){
     setActiveNav(ootoNav); showView('ooto');
@@ -805,21 +797,14 @@
   document.addEventListener('click', function(e){
     var b = e.target.closest('.js-demo-action'); if (!b) return;
     e.preventDefault();
-    toast('Demo — “' + b.getAttribute('data-action') + '” isn’t wired up yet');
+    toast(b.getAttribute('data-action') + ' — coming soon');
   });
 
-  /* ── DEMO: role switcher + team management ── */
+  /* ── Team management (functional; persists to /api/team, localStorage fallback) ── */
   (function(){
     var body = document.body;
-    var sel = document.getElementById('role-select');
     var TRASH = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>';
 
-    function buildSelect(){
-      sel.innerHTML = '';
-      TEAM.forEach(function(m){ var o = document.createElement('option'); o.value = m.id; o.textContent = m.name; o.title = m.role; sel.appendChild(o); });
-      sel.value = currentMember.id;
-      sel.title = currentMember.name + ' — ' + currentMember.role;
-    }
     function applyTier(){ body.classList.remove('tier-admin','tier-manager','tier-contributor','tier-viewer'); body.classList.add('tier-' + currentTier); }
     function canManage(){ return currentTier==='admin' || currentTier==='manager'; }
     function updateTeamLabels(){
@@ -827,20 +812,13 @@
       var nav = document.getElementById('team-nav-label'); if (nav) nav.textContent = lbl;
       var title = document.getElementById('team-view-title'); if (title) title.textContent = lbl;
     }
-    function setMember(id, announce){
-      var m = memberById(id); if (!m) return;
-      currentMember = m; currentTier = tierOf(m.role);
-      applyTier(); updateTeamLabels(); buildSelect(); render();
-      try{ localStorage.setItem('portal-role', id); }catch(e){}
-      if (announce) toast('Now viewing as ' + m.name + ' · ' + m.role);
-    }
-    sel.addEventListener('change', function(){ setMember(sel.value, true); });
 
-    /* Team view (users table) + add-member drawer */
+    /* Team view (users table) + add/edit drawer */
     var tOverlay = document.getElementById('team-overlay'), tPanel = document.getElementById('team-panel');
     var tbody = document.getElementById('user-tbody'), subEl = document.getElementById('team-view-sub');
     var teamEmpty = document.getElementById('team-empty'), roleSel = document.getElementById('tm-role');
     var searchT = document.getElementById('team-search'), roleFilter = document.getElementById('team-role-filter');
+    var addTitle = document.getElementById('team-add-title'), addBtn = document.getElementById('tm-add');
     function statusValue(){ var r = document.querySelector('input[name="team-status"]:checked'); return r ? r.value : 'All'; }
     var checkAll = document.getElementById('team-check-all');
     ROLE_ORDER.forEach(function(r){ var o = document.createElement('option'); o.value = r; o.textContent = r; roleSel.appendChild(o); });
@@ -849,6 +827,17 @@
       ROLE_ORDER.forEach(function(r){ var x=document.createElement('option'); x.value=r; x.textContent=r; roleFilter.appendChild(x); }); })();
 
     var DOTS = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
+
+    // ── Persistence: localStorage cache + /api/team (KV). Server is source of truth when configured.
+    function persist(){
+      saveTeam();
+      fetch('/api/team', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ team:TEAM }) }).catch(function(){});
+    }
+    function loadFromServer(){
+      fetch('/api/team').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (d && d.configured && Array.isArray(d.team)) { TEAM = d.team; saveTeam(); renderTeam(); }
+      }).catch(function(){});
+    }
 
     function filteredTeam(){
       var q=(searchT.value||'').trim().toLowerCase(), rf=roleFilter.value, sf=statusValue();
@@ -867,7 +856,6 @@
       teamEmpty.style.display = list.length ? 'none' : 'block';
       list.forEach(function(m){
         var st = m.status || 'Active';
-        var canRemove = manage && m.id !== currentMember.id;
         var c = colorOf(m.role);
         var tr = document.createElement('tr');
         tr.innerHTML =
@@ -876,7 +864,7 @@
           '<td><span class="role-pill"><span class="rp-ic" style="color:' + c + '">' + roleIcon(m.role) + '</span>' + esc(m.role) + '</span></td>' +
           '<td class="u-email">' + esc(m.email||'—') + '</td>' +
           '<td><span class="status-cell st-' + st + '"><span class="status-dot"></span>' + esc(st) + '</span></td>' +
-          '<td class="col-act">' + (manage ? '<button class="act-btn js-row-act" type="button" data-id="' + m.id + '" data-name="' + esc(m.name) + '"' + (canRemove ? '' : ' data-noremove="1"') + ' aria-label="Actions">' + DOTS + '</button>' : '') + '</td>';
+          '<td class="col-act">' + (manage ? '<button class="act-btn js-row-act" type="button" data-id="' + m.id + '" aria-label="Actions">' + DOTS + '</button>' : '') + '</td>';
         tbody.appendChild(tr);
       });
     }
@@ -887,22 +875,20 @@
     document.querySelectorAll('input[name="team-status"]').forEach(function(r){ r.addEventListener('change', renderTeam); });
     checkAll.addEventListener('change', function(){ Array.prototype.forEach.call(tbody.querySelectorAll('.tbl-check'), function(c){ c.checked = checkAll.checked; }); });
 
-    // Sidebar "Team Management" / "Your Team" → switch to the team view
+    // Sidebar "Team Management" → team view
     var teamNav = document.querySelector('.js-view-team');
     teamNav.addEventListener('click', function(){
       setActiveNav(teamNav); showView('team'); renderTeamView();
       if (window.innerWidth < 900) body.classList.remove('sb-open');
     });
 
-    // Row actions menu (…)
+    // Row actions menu (Edit / Remove)
     var rowMenu = document.getElementById('row-menu'), rmId = null;
     document.addEventListener('click', function(e){
       var act = e.target.closest('.js-row-act');
       if (act){
         e.stopPropagation();
         rmId = act.getAttribute('data-id');
-        document.getElementById('rm-edit').setAttribute('data-name', act.getAttribute('data-name'));
-        document.getElementById('rm-remove').style.display = act.getAttribute('data-noremove') ? 'none' : '';
         var r = act.getBoundingClientRect();
         rowMenu.style.top = (r.bottom + window.scrollY + 6) + 'px';
         rowMenu.style.left = (r.right + window.scrollX - 158) + 'px';
@@ -911,39 +897,44 @@
       }
       if (!rowMenu.contains(e.target)) rowMenu.style.display = 'none';
     });
-    document.getElementById('rm-edit').addEventListener('click', function(){
-      rowMenu.style.display = 'none';
-      toast('Demo — “Edit ' + (this.getAttribute('data-name')||'member') + '” isn’t wired up yet');
-    });
+    document.getElementById('rm-edit').addEventListener('click', function(){ rowMenu.style.display = 'none'; if (rmId) openEdit(rmId); });
     document.getElementById('rm-remove').addEventListener('click', function(){
       rowMenu.style.display = 'none';
-      if (!rmId || rmId === currentMember.id) return;
+      if (!rmId) return;
       var gone = memberById(rmId);
-      TEAM = TEAM.filter(function(x){ return x.id !== rmId; }); saveTeam(); renderTeam(); buildSelect();
+      TEAM = TEAM.filter(function(x){ return x.id !== rmId; }); persist(); renderTeam();
       toast('Removed ' + (gone ? gone.name : 'team member'));
     });
 
-    // Add-member drawer
-    function openAdd(){ tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
-    function closeAdd(){ tOverlay.classList.remove('open'); tPanel.classList.remove('open'); }
+    // Add / edit drawer
+    var editingId = null;
+    function resetForm(){ document.getElementById('tm-name').value=''; document.getElementById('tm-email').value=''; roleSel.value='Designer'; document.getElementById('tm-name').style.borderColor=''; }
+    function openAdd(){ editingId=null; addTitle.textContent='Add team member'; addBtn.textContent='Add team member'; resetForm(); tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
+    function openEdit(id){ var m=memberById(id); if(!m) return; editingId=id; addTitle.textContent='Edit team member'; addBtn.textContent='Save changes'; document.getElementById('tm-name').value=m.name; document.getElementById('tm-email').value=m.email||''; roleSel.value=m.role; tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
+    function closeAdd(){ tOverlay.classList.remove('open'); tPanel.classList.remove('open'); editingId=null; }
     document.querySelectorAll('.js-open-add').forEach(function(b){ b.addEventListener('click', openAdd); });
     document.getElementById('team-x').addEventListener('click', closeAdd);
     tOverlay.addEventListener('click', closeAdd);
     document.addEventListener('keydown', function(e){ if (e.key==='Escape') closeAdd(); });
 
-    document.getElementById('tm-add').addEventListener('click', function(){
+    addBtn.addEventListener('click', function(){
       var nameEl = document.getElementById('tm-name'), emailEl = document.getElementById('tm-email');
       var name = (nameEl.value||'').trim();
       if (!name){ nameEl.focus(); nameEl.style.borderColor = '#dc2626'; return; }
       nameEl.style.borderColor = '';
-      var m = { id:'u-' + Date.now(), name:name, email:(emailEl.value||'').trim(), role:roleSel.value, status:'Invited' };
-      TEAM.push(m); saveTeam(); renderTeam(); buildSelect();
-      nameEl.value = ''; emailEl.value = ''; roleSel.value = 'Designer';
-      closeAdd(); toast('Added ' + m.name + ' · ' + m.role);
+      var email = (emailEl.value||'').trim(), role = roleSel.value;
+      if (editingId){
+        var m = memberById(editingId);
+        if (m){ m.name=name; m.email=email; m.role=role; }
+        persist(); renderTeam(); closeAdd(); toast('Updated ' + name);
+      } else {
+        var nm = { id:'u-' + Date.now(), name:name, email:email, role:role, status:'Active' };
+        TEAM.push(nm); persist(); renderTeam(); closeAdd(); toast('Added ' + nm.name);
+      }
     });
 
     // init
-    applyTier(); updateTeamLabels(); buildSelect();
+    applyTier(); updateTeamLabels(); renderTeam(); loadFromServer();
   })();
 </script>
 </body>
