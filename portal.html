@@ -376,7 +376,6 @@
           <span>New project</span>
         </button>
       </div>
-      <div class="filters" id="filters"></div>
       <div id="sections"></div>
       <div class="empty" id="empty" style="display:none">No projects match your search.</div>
     </div>
@@ -615,7 +614,6 @@
       ? '<button class="tile-role js-demo-action" type="button" title="Leave feedback" data-action="Leave feedback on ' + esc(t.title) + '">' + CHAT_ICON + '</button>'
       : '<button class="tile-role js-demo-action" type="button" title="Edit project" data-action="Edit ' + esc(t.title) + '">' + EDIT_ICON + '</button>';
     return roleBtn + '<h3>' + esc(t.title) + '</h3>' +
-      (t.status ? '<span class="tag ' + stCls + '">' + esc(t.status) + '</span>' : '') +
       '<p class="desc">' + esc(t.desc) + '</p>' + metaHTML +
       '<a class="btn-open" href="' + esc(t.url) + '">Open' + OPEN_ICON + '</a>' +
       '<button class="btn-copy" type="button" data-url="' + esc(t.url) + '">' + COPY_ICON + '<span>Copy link</span></button>';
@@ -635,22 +633,6 @@
     b.textContent = sec==='All' ? PROJECTS.length : PROJECTS.filter(function(p){return p.section===sec;}).length;
   });
 
-  // Status filter chips
-  (function(){
-    var statuses = ['All'].concat(PROJECTS.map(function(p){ return p.status; }).filter(function(v,i,a){ return v && a.indexOf(v)===i; }));
-    var fh = document.getElementById('filters');
-    statuses.forEach(function(s){
-      var b = document.createElement('button');
-      b.className = 'chip' + (s==='All' ? ' active' : ''); b.type='button'; b.textContent = s; b.setAttribute('data-status', s);
-      fh.appendChild(b);
-    });
-    fh.addEventListener('click', function(e){
-      var c = e.target.closest('.chip'); if (!c) return;
-      activeStatus = c.getAttribute('data-status');
-      Array.prototype.forEach.call(fh.children, function(x){ x.classList.toggle('active', x===c); });
-      render();
-    });
-  })();
 
   // View switching (projects vs team) + active nav state
   function showView(v){
