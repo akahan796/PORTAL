@@ -142,6 +142,10 @@
   .ooto-tab{position:relative;border:0;background:none;font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:11px 18px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
   .ooto-tab:hover{color:var(--text);}
   .ooto-tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+  .ooto-info-bar{display:flex;justify-content:flex-end;margin:-4px 0 18px;}
+  .ooto-dl{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .ooto-dl:hover{background:var(--surface-hover);border-color:var(--brand);color:var(--brand);}
+  .ooto-dl svg{width:15px;height:15px;}
   .ooto-info{max-width:680px;}
   .ooto-info-h{font-size:16px;font-weight:700;color:var(--text);margin:0 0 14px;}
   .ooto-info-dates{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
@@ -1145,6 +1149,7 @@
     var DESIGNERS = [ { key:'jason', name:'Jason', color:'#0891b2' }, { key:'lele', name:'Lele', color:'#7c3aed' } ];
     var TABS = [{ key:'info', name:'Information' }].concat(DESIGNERS.map(function(d){ return { key:d.key, name:d.name }; }));
     var PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
+    var DLSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
     var DATA = null, saveT = null, active = 'info';
 
     function meta(key){ return DESIGNERS.filter(function(d){ return d.key===key; })[0] || { name:'', color:'#64748B' }; }
@@ -1173,7 +1178,8 @@
     }
     function infoPanelHTML(){
       var i = DATA.info || {};
-      return '<div class="ooto-info">' +
+      return '<div class="ooto-info-bar"><button class="ooto-dl" type="button" title="Generate a distributable summary of the whole coverage plan">' + DLSVG + 'Download summary</button></div>' +
+        '<div class="ooto-info">' +
         '<h2 class="ooto-info-h">Paternity leave</h2>' +
         '<div class="ooto-info-dates">' +
           '<div class="ooto-field"><label>Start date</label><input type="date" class="ooto-date" data-info="start" value="' + esc(i.start||'') + '"></div>' +
@@ -1192,6 +1198,67 @@
         '<button class="ooto-add" type="button" data-key="' + key + '">' + PLUS + 'Add project</button></div>' +
         '<div class="ooto-cards">' + cards + '</div>';
     }
+    // ── Build a self-contained, printable summary document of the whole board ──
+    function fmtDate(iso){
+      if (!iso) return '';
+      var p = String(iso).split('-'); if (p.length !== 3) return iso;
+      var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      var m = MON[parseInt(p[1],10)-1]; if (!m) return iso;
+      return m + ' ' + parseInt(p[2],10) + ', ' + p[0];
+    }
+    function nl2br(s){ return esc(s).replace(/\n/g, '<br>'); }
+    function docField(label, val){ return (val && String(val).trim()) ? '<div class="f"><div class="fl">' + esc(label) + '</div><div class="fv">' + nl2br(val) + '</div></div>' : ''; }
+    function buildSummaryHTML(){
+      var i = DATA.info || {};
+      var range = (i.start || i.end) ? ((fmtDate(i.start) || '—') + '  to  ' + (fmtDate(i.end) || '—')) : '';
+      var body = '<h1>Alex’s OOTO — Coverage Summary</h1>' +
+        '<p class="sub">Project coverage during Alex Kahan’s paternity leave.</p>' +
+        '<section class="blk"><h2>Leave</h2>' +
+        (range ? '<div class="f"><div class="fl">Dates</div><div class="fv">' + esc(range) + '</div></div>' : '') +
+        docField('Notes', i.notes) +
+        ((!range && !(i.notes && i.notes.trim())) ? '<p class="empty">No information provided.</p>' : '') +
+        '</section>';
+      DESIGNERS.forEach(function(m){
+        var d = designer(m.key) || { projects:[] };
+        body += '<section class="blk"><h2><span class="dot" style="background:' + m.color + '"></span>' + esc(m.name) + ' — coverage</h2>';
+        if (!d.projects.length){ body += '<p class="empty">No projects assigned.</p>'; }
+        else {
+          d.projects.forEach(function(p){
+            body += '<div class="proj"><h3>' + esc(p.title || 'Untitled project') + '</h3>';
+            if (p.url && p.url.trim()) body += '<div class="link">' + esc(p.url) + '</div>';
+            body += docField('Notes', p.notes) + docField('Contacts', p.contacts) + docField(m.name + '’s notes', p.dnotes) + '</div>';
+          });
+        }
+        body += '</section>';
+      });
+      var css = 'body{font-family:Arial,Helvetica,sans-serif;color:#141414;margin:0;background:#f4f5f8;}' +
+        '.wrap{max-width:820px;margin:0 auto;background:#fff;padding:48px 56px;box-sizing:border-box;}' +
+        'h1{font-size:26px;margin:0 0 6px;}' +
+        '.sub{color:#5c5c5c;font-size:14px;margin:0 0 28px;}' +
+        '.blk{border-top:1px solid #e3e3e3;padding:22px 0 6px;}' +
+        '.blk h2{font-size:17px;margin:0 0 16px;display:flex;align-items:center;gap:9px;}' +
+        '.dot{width:11px;height:11px;border-radius:50%;display:inline-block;}' +
+        '.proj{border:1px solid #e3e3e3;border-radius:10px;padding:16px 18px;margin:0 0 16px;}' +
+        '.proj h3{font-size:15px;margin:0 0 6px;}' +
+        '.link{font-size:13px;color:#0a5dff;word-break:break-all;margin:0 0 10px;}' +
+        '.f{margin:10px 0;}' +
+        '.fl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#7a7a7a;margin:0 0 3px;}' +
+        '.fv{font-size:14px;line-height:20px;white-space:pre-wrap;}' +
+        '.empty{color:#9a9a9a;font-style:italic;font-size:14px;margin:2px 0 14px;}' +
+        'footer{border-top:1px solid #e3e3e3;margin-top:26px;padding-top:14px;color:#9a9a9a;font-size:12px;}' +
+        '@media print{body{background:#fff;}.wrap{padding:0;max-width:none;}}';
+      return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alex’s OOTO — Coverage Summary</title><style>' + css + '</style></head><body><div class="wrap">' + body + '<footer>Generated from the OneStream UX Portal. Tip: open this file and use your browser’s Print → Save as PDF to share.</footer></div></body></html>';
+    }
+    function downloadSummary(){
+      var html = buildSummaryHTML();
+      var blob = new Blob([html], { type:'text/html' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'Alex-OOTO-Coverage-Summary.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      if (typeof toast === 'function') toast('Summary downloaded');
+    }
+
     function renderTabs(){
       tabsEl.innerHTML = TABS.map(function(t){ return '<button class="ooto-tab' + (t.key===active?' active':'') + '" type="button" data-tab="' + t.key + '">' + esc(t.name) + '</button>'; }).join('');
     }
@@ -1211,6 +1278,7 @@
       if (f === 'url'){ var a = card.querySelector('[data-open]'); if (a){ var v = e.target.value.trim(); if (v){ a.href = v; a.style.display = ''; } else { a.style.display = 'none'; } } }
     });
     panelEl.addEventListener('click', function(e){
+      if (e.target.closest('.ooto-dl')){ downloadSummary(); return; }
       var add = e.target.closest('.ooto-add');
       if (add){ openAddMenu(add, add.getAttribute('data-key')); return; }
       var del = e.target.closest('.ooto-del');
