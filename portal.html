@@ -877,6 +877,7 @@
   if (ootoNav) ootoNav.addEventListener('click', function(){
     setActiveNav(ootoNav); showView('ooto');
     if (window.innerWidth < 900) document.body.classList.remove('sb-open');
+    if (window.__ootoShown) window.__ootoShown();
   });
 
   function render(){
@@ -1288,7 +1289,23 @@
     function renderTabs(){
       tabsEl.innerHTML = TABS.map(function(t){ return '<button class="ooto-tab' + (t.key===active?' active':'') + '" type="button" data-tab="' + t.key + '">' + esc(t.name) + '</button>'; }).join('');
     }
-    function renderPanel(){ panelEl.innerHTML = bannerHTML() + (active==='info' ? infoPanelHTML() : designerPanelHTML(active)); }
+    function renderPanel(){
+      panelEl.innerHTML = bannerHTML() + (active==='info' ? infoPanelHTML() : designerPanelHTML(active));
+      if (active === 'info') requestAnimationFrame(sizeInfoNotes);
+    }
+    // Grow the Information "Notes" box to fill down to the bottom of the viewport,
+    // leaving the page's own bottom padding as the margin.
+    function sizeInfoNotes(){
+      var ta = panelEl.querySelector('.ooto-info-notes'); if (!ta) return;
+      var rect = ta.getBoundingClientRect();
+      if (rect.top === 0 && rect.height === 0) return; // tab/view not visible yet
+      var content = document.querySelector('.content');
+      var pad = content ? (parseFloat(getComputedStyle(content).paddingBottom) || 32) : 32;
+      ta.style.height = Math.max(180, Math.round(window.innerHeight - rect.top - pad)) + 'px';
+    }
+    window.addEventListener('resize', function(){ if (active === 'info') sizeInfoNotes(); });
+    // Called when the OOTO view is switched into (it was rendered while hidden).
+    window.__ootoShown = function(){ if (active === 'info') requestAnimationFrame(sizeInfoNotes); };
     function render(){ renderTabs(); renderPanel(); }
 
     tabsEl.addEventListener('click', function(e){ var b = e.target.closest('.ooto-tab'); if (!b) return; active = b.getAttribute('data-tab'); render(); });
