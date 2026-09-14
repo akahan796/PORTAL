@@ -40,10 +40,14 @@
     <h1>OneStream UX Portal</h1>
     <p class="sub">Strictly confidential. Authorized users only.</p>
 
-    <div class="err" id="err" style="display:none">Incorrect password. Please try again.</div>
+    <div class="err" id="err" style="display:none">Incorrect email or password. Please try again.</div>
+    <div class="pw-row" style="margin-bottom:10px">
+      <input id="email" type="email" name="email" placeholder="Email"
+             autocomplete="username" aria-label="Email" autofocus />
+    </div>
     <div class="pw-row">
-      <input id="pw" type="password" name="password" placeholder="Enter password"
-             autocomplete="current-password" aria-label="Password" autofocus required />
+      <input id="pw" type="password" name="password" placeholder="Password"
+             autocomplete="current-password" aria-label="Password" required />
       <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password"></button>
     </div>
     <button type="submit" class="submit">Unlock</button>

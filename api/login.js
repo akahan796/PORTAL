@@ -1,83 +1,53 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Vercel Edge Function — validates the password on the SERVER.
+// Vercel Edge Function — per-user login.
 //
-// The active password is either a custom one the user set (stored as a SHA-256
-// hash in KV under `portal_pw`, changeable via /api/password), or — until they
-// set one — the ACCESS_PASSWORD environment variable. SESSION_TOKEN and
-// ACCESS_PASSWORD are server-only env vars, never shipped to the browser.
-//
-// On a correct password it sets an HttpOnly, Secure session cookie and redirects
-// to the portal; otherwise it bounces back to the login page with ?e=1.
+// POST { email, password }:
+//   • With an email → looks the user up in KV and checks their password.
+//   • Without an email → admin recovery: the password is checked against the
+//     owner's password or the ACCESS_PASSWORD env var (@dmin123), logging in as
+//     the owner. This is a break-glass so the workspace can't be locked out.
+// On success, issues a signed session cookie and redirects to the portal.
 // ─────────────────────────────────────────────────────────────────────────────
+
+import { ensureUsers, findByEmail, sha256, makeSession, sessionCookie } from './_lib.js';
 
 export const config = { runtime: 'edge' };
 
-const COOKIE_NAME = 'portal_auth';           // must match middleware.js / logout.js
-const REDIRECT_AFTER_LOGIN = '/portal.html'; // where a successful login lands
-const PW_KEY = 'portal_pw';                  // KV key holding the SHA-256 of the custom password
-
-function kvCreds(){
-  return {
-    url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '',
-    token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '',
-  };
-}
-async function kvGet(key){
-  const { url, token } = kvCreds();
-  if (!url || !token) return null;
-  try {
-    const r = await fetch(url, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(['GET', key]),
-    });
-    if (!r.ok) return null;
-    const j = await r.json().catch(() => ({}));
-    return j.result || null;
-  } catch (e) { return null; }
-}
-async function sha256(s){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(s)));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+function bounce(origin){
+  return new Response(null, { status: 303, headers: { 'Location': origin + '/login.html?e=1', 'Cache-Control': 'no-store' } });
 }
 
-export default async function handler(request) {
+export default async function handler(request){
   const origin = new URL(request.url).origin;
-  if (request.method !== 'POST') {
-    return Response.redirect(origin + '/login.html', 302);
-  }
+  if (request.method !== 'POST') return Response.redirect(origin + '/login.html', 302);
+  if (!process.env.SESSION_TOKEN) return bounce(origin);
 
-  let password = '';
+  let email = '', password = '';
   try {
     const ct = request.headers.get('content-type') || '';
-    if (ct.includes('application/json')) {
-      password = (await request.json()).password || '';
-    } else {
-      const form = await request.formData();
-      password = form.get('password') || '';
-    }
-  } catch (e) { /* ignore malformed body */ }
+    if (ct.includes('application/json')) { const b = await request.json(); email = b.email || ''; password = b.password || ''; }
+    else { const f = await request.formData(); email = f.get('email') || ''; password = f.get('password') || ''; }
+  } catch (e) {}
 
-  const token = process.env.SESSION_TOKEN;
-  const accessPw = process.env.ACCESS_PASSWORD;
+  const users = await ensureUsers();
+  const pwHash = await sha256(password);
+  let uid = null;
 
-  // A custom password (KV hash) takes precedence; otherwise the env password applies.
-  const storedHash = await kvGet(PW_KEY);
-  let valid;
-  if (storedHash) {
-    valid = (await sha256(password)) === storedHash;
+  const em = String(email).trim();
+  if (em) {
+    const u = findByEmail(users, em);
+    if (u && u.pwHash && pwHash === u.pwHash) uid = u.id;
   } else {
-    valid = !!(accessPw && password === accessPw);
+    // Admin recovery — password only, logs in as the owner.
+    const owner = users.find((u) => u.role === 'Super Administrator') || users[0];
+    const envPw = process.env.ACCESS_PASSWORD || '';
+    if (owner && ((envPw && password === envPw) || (owner.pwHash && pwHash === owner.pwHash))) uid = owner.id;
   }
 
-  if (token && valid) {
-    const headers = new Headers({ 'Location': origin + REDIRECT_AFTER_LOGIN, 'Cache-Control': 'no-store' });
-    headers.append('Set-Cookie', `${COOKIE_NAME}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax`);
+  if (uid) {
+    const headers = new Headers({ 'Location': origin + '/portal.html', 'Cache-Control': 'no-store' });
+    headers.append('Set-Cookie', sessionCookie(await makeSession(uid)));
     return new Response(null, { status: 303, headers });
   }
-
-  return new Response(null, {
-    status: 303,
-    headers: { 'Location': origin + '/login.html?e=1', 'Cache-Control': 'no-store' },
-  });
+  return bounce(origin);
 }
