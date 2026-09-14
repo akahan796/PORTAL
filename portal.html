@@ -599,11 +599,7 @@
   function roleIcon(role){ return ROLE_ICON[role] || ''; }
 
   var SEED_TEAM = [
-    { id:'u-alex',   name:'Alex Kahan',   email:'alex.kahan@onestreamsoftware.com',   role:'Super Administrator', status:'Active' },
-    { id:'u-jordan', name:'Jordan Ellis', email:'jordan.ellis@onestreamsoftware.com', role:'UX Manager',          status:'Active' },
-    { id:'u-sam',    name:'Sam Rivera',   email:'sam.rivera@onestreamsoftware.com',   role:'Designer',            status:'Active' },
-    { id:'u-priya',  name:'Priya Nair',   email:'priya.nair@onestreamsoftware.com',   role:'Researcher',          status:'Active' },
-    { id:'u-chris',  name:'Chris Doyle',  email:'chris.doyle@onestreamsoftware.com',  role:'Reviewer',            status:'Invited' }
+    { id:'u-alex', name:'Alex Kahan', email:'alex.kahan@onestreamsoftware.com', role:'Super Administrator', status:'Active' }
   ];
   var TEAM = (function(){ try{ var s=localStorage.getItem('portal-team'); if(s){ var a=JSON.parse(s); if(a && a.length) return a; } }catch(e){} return SEED_TEAM.slice(); })();
   function saveTeam(){ try{ localStorage.setItem('portal-team', JSON.stringify(TEAM)); }catch(e){} }
