@@ -528,7 +528,8 @@
       </button>
     </div>
     <div class="panel-bd">
-      <div class="fld"><label for="tm-name">Full name <span class="req">*</span></label><input id="tm-name" type="text" placeholder="e.g. Taylor Brooks" /></div>
+      <div class="fld"><label for="tm-first">First name <span class="req">*</span></label><input id="tm-first" type="text" placeholder="e.g. Taylor" /></div>
+      <div class="fld"><label for="tm-last">Last name</label><input id="tm-last" type="text" placeholder="e.g. Brooks" /></div>
       <div class="fld"><label for="tm-email">Email</label><input id="tm-email" type="email" placeholder="name@onestreamsoftware.com" /></div>
       <div class="fld"><label for="tm-role">Role</label><select id="tm-role"></select></div>
     </div>
@@ -589,6 +590,7 @@
   function tierOf(role){ return (ROLE_TYPES[role]||{}).tier || 'viewer'; }
   function colorOf(role){ return (ROLE_TYPES[role]||{}).color || '#64748B'; }
   function initialsOf(name){ var p=String(name||'').trim().split(/\s+/); return (((p[0]||' ')[0]||'') + (p.length>1?(p[p.length-1][0]||''):'')).toUpperCase(); }
+  function fullName(m){ return (((m.first||'') + ' ' + (m.last||'')).trim()) || (m.name||''); }
   var ROLE_ICON = {
     'Super Administrator':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
     'UX Manager':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
@@ -599,7 +601,7 @@
   function roleIcon(role){ return ROLE_ICON[role] || ''; }
 
   var SEED_TEAM = [
-    { id:'u-alex', name:'Alex Kahan', email:'alex.kahan@onestreamsoftware.com', role:'Super Administrator', status:'Active' }
+    { id:'u-alex', first:'Alex', last:'Kahan', email:'alex.kahan@onestreamsoftware.com', role:'Super Administrator', status:'Active' }
   ];
   var TEAM = (function(){ try{ var s=localStorage.getItem('portal-team'); if(s){ var a=JSON.parse(s); if(a && a.length) return a; } }catch(e){} return SEED_TEAM.slice(); })();
   function saveTeam(){ try{ localStorage.setItem('portal-team', JSON.stringify(TEAM)); }catch(e){} }
@@ -840,7 +842,7 @@
       return TEAM.filter(function(m){
         if (rf!=='All' && m.role!==rf) return false;
         if (sf!=='All' && (m.status||'Active')!==sf) return false;
-        if (q && (m.name+' '+(m.email||'')).toLowerCase().indexOf(q)===-1) return false;
+        if (q && (fullName(m)+' '+(m.email||'')).toLowerCase().indexOf(q)===-1) return false;
         return true;
       });
     }
@@ -856,7 +858,7 @@
         var tr = document.createElement('tr');
         tr.innerHTML =
           '<td class="col-check"><input type="checkbox" class="tbl-check" aria-label="Select"></td>' +
-          '<td><div class="u-cell"><span class="uav" style="background:' + c + '">' + initialsOf(m.name) + '</span><span class="un">' + esc(m.name) + '</span></div></td>' +
+          '<td><div class="u-cell"><span class="uav" style="background:' + c + '">' + initialsOf(fullName(m)) + '</span><span class="un">' + esc(fullName(m)) + '</span></div></td>' +
           '<td><span class="role-pill"><span class="rp-ic" style="color:' + c + '">' + roleIcon(m.role) + '</span>' + esc(m.role) + '</span></td>' +
           '<td class="u-email">' + esc(m.email||'—') + '</td>' +
           '<td><span class="status-cell st-' + st + '"><span class="status-dot"></span>' + esc(st) + '</span></td>' +
@@ -899,14 +901,15 @@
       if (!rmId) return;
       var gone = memberById(rmId);
       TEAM = TEAM.filter(function(x){ return x.id !== rmId; }); persist(); renderTeam();
-      toast('Removed ' + (gone ? gone.name : 'team member'));
+      toast('Removed ' + (gone ? fullName(gone) : 'team member'));
     });
 
     // Add / edit drawer
     var editingId = null;
-    function resetForm(){ document.getElementById('tm-name').value=''; document.getElementById('tm-email').value=''; roleSel.value='Designer'; document.getElementById('tm-name').style.borderColor=''; }
-    function openAdd(){ editingId=null; addTitle.textContent='Add team member'; addBtn.textContent='Add team member'; resetForm(); tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
-    function openEdit(id){ var m=memberById(id); if(!m) return; editingId=id; addTitle.textContent='Edit team member'; addBtn.textContent='Save changes'; document.getElementById('tm-name').value=m.name; document.getElementById('tm-email').value=m.email||''; roleSel.value=m.role; tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ document.getElementById('tm-name').focus(); }, 250); }
+    var firstEl = document.getElementById('tm-first'), lastEl = document.getElementById('tm-last');
+    function resetForm(){ firstEl.value=''; lastEl.value=''; document.getElementById('tm-email').value=''; roleSel.value='Designer'; firstEl.style.borderColor=''; }
+    function openAdd(){ editingId=null; addTitle.textContent='Add team member'; addBtn.textContent='Add team member'; resetForm(); tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ firstEl.focus(); }, 250); }
+    function openEdit(id){ var m=memberById(id); if(!m) return; editingId=id; addTitle.textContent='Edit team member'; addBtn.textContent='Save changes'; firstEl.value=m.first||''; lastEl.value=m.last||''; document.getElementById('tm-email').value=m.email||''; roleSel.value=m.role; firstEl.style.borderColor=''; tOverlay.classList.add('open'); tPanel.classList.add('open'); body.classList.remove('sb-open'); setTimeout(function(){ firstEl.focus(); }, 250); }
     function closeAdd(){ tOverlay.classList.remove('open'); tPanel.classList.remove('open'); editingId=null; }
     document.querySelectorAll('.js-open-add').forEach(function(b){ b.addEventListener('click', openAdd); });
     document.getElementById('team-x').addEventListener('click', closeAdd);
@@ -914,18 +917,17 @@
     document.addEventListener('keydown', function(e){ if (e.key==='Escape') closeAdd(); });
 
     addBtn.addEventListener('click', function(){
-      var nameEl = document.getElementById('tm-name'), emailEl = document.getElementById('tm-email');
-      var name = (nameEl.value||'').trim();
-      if (!name){ nameEl.focus(); nameEl.style.borderColor = '#dc2626'; return; }
-      nameEl.style.borderColor = '';
-      var email = (emailEl.value||'').trim(), role = roleSel.value;
+      var first = (firstEl.value||'').trim(), last = (lastEl.value||'').trim();
+      if (!first){ firstEl.focus(); firstEl.style.borderColor = '#dc2626'; return; }
+      firstEl.style.borderColor = '';
+      var email = (document.getElementById('tm-email').value||'').trim(), role = roleSel.value;
       if (editingId){
         var m = memberById(editingId);
-        if (m){ m.name=name; m.email=email; m.role=role; }
-        persist(); renderTeam(); closeAdd(); toast('Updated ' + name);
+        if (m){ m.first=first; m.last=last; m.email=email; m.role=role; delete m.name; }
+        persist(); renderTeam(); closeAdd(); toast('Updated ' + (first + ' ' + last).trim());
       } else {
-        var nm = { id:'u-' + Date.now(), name:name, email:email, role:role, status:'Active' };
-        TEAM.push(nm); persist(); renderTeam(); closeAdd(); toast('Added ' + nm.name);
+        var nm = { id:'u-' + Date.now(), first:first, last:last, email:email, role:role, status:'Active' };
+        TEAM.push(nm); persist(); renderTeam(); closeAdd(); toast('Added ' + fullName(nm));
       }
     });
 
