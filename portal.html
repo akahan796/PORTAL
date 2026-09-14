@@ -135,6 +135,8 @@
   .ooto-field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 5px;}
   .ooto-field textarea{width:100%;min-height:50px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13.5px;line-height:19px;color:var(--text);background:var(--surface-2);outline:none;resize:vertical;}
   .ooto-field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.12);background:var(--surface);}
+  /* Card fields auto-grow to fit their text, so they never need an inner scrollbar. */
+  .ooto-card .ooto-field textarea{overflow:hidden;resize:none;}
   .ooto-field.dnotes textarea{background:#fffbeb;border-color:#fde68a;}
   html[data-theme="dark"] .ooto-field.dnotes textarea{background:#2a2410;border-color:#5b4a25;}
   .ooto-empty{color:var(--muted-2);font-size:13px;padding:18px;text-align:center;border:1px dashed var(--border-strong);border-radius:10px;}
@@ -1318,7 +1320,12 @@
       box.style.height = Math.max(360, Math.round(window.innerHeight - rect.top - pad)) + 'px';
     }
     // Grow a card textarea to fit all its text (no internal scroll).
-    function autosize(ta){ if (!ta || ta.offsetParent === null) return; ta.style.height = 'auto'; ta.style.height = Math.max(46, ta.scrollHeight) + 'px'; }
+    function autosize(ta){
+      if (!ta || ta.offsetParent === null) return;
+      ta.style.height = 'auto';
+      var borderY = ta.offsetHeight - ta.clientHeight; // top+bottom border (box-sizing:border-box)
+      ta.style.height = Math.max(44, ta.scrollHeight + borderY) + 'px';
+    }
     function autosizeCards(){ var list = panelEl.querySelectorAll('.ooto-card textarea'); for (var i = 0; i < list.length; i++) autosize(list[i]); }
     function sizeActive(){ if (active === 'info') sizeInfoNotes(); else autosizeCards(); }
     window.addEventListener('resize', function(){ sizeActive(); });
