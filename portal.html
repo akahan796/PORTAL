@@ -124,7 +124,8 @@
   .ooto-add{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
   .ooto-add:hover{background:var(--surface-hover);}
   .ooto-add svg{width:15px;height:15px;}
-  .ooto-cards{display:flex;flex-direction:column;gap:16px;}
+  .ooto-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;}
+  @media(max-width:900px){ .ooto-cards{grid-template-columns:1fr;} }
   .ooto-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
   .ooto-title{width:100%;border:0;background:none;font-family:inherit;font-size:16px;font-weight:700;color:var(--text);outline:none;padding:0 26px 0 0;}
   .ooto-title::placeholder{color:var(--muted-2);font-weight:600;}
@@ -571,7 +572,7 @@
       <div class="content-hd">
         <div>
           <h1>Alex's OOTO</h1>
-          <p class="view-sub">Coverage while I'm on paternity leave. Start on the Information tab, then Jason's and Lele's project handoffs. Everything saves automatically.</p>
+          <p class="view-sub">Here you will find all of the projects information that may require help while I am on my paternity leave.</p>
         </div>
       </div>
       <div class="ooto-tabs" id="ooto-tabs"></div>
@@ -1295,7 +1296,7 @@
     }
     function renderPanel(){
       panelEl.innerHTML = bannerHTML() + (active==='info' ? infoPanelHTML() : designerPanelHTML(active));
-      if (active === 'info') requestAnimationFrame(sizeInfoNotes);
+      requestAnimationFrame(sizeActive);
     }
     // Grow the Information "Notes" box to fill down to the bottom of the viewport,
     // leaving the page's own bottom padding as the margin.
@@ -1307,9 +1308,13 @@
       var pad = content ? (parseFloat(getComputedStyle(content).paddingBottom) || 32) : 32;
       ta.style.height = Math.max(180, Math.round(window.innerHeight - rect.top - pad)) + 'px';
     }
-    window.addEventListener('resize', function(){ if (active === 'info') sizeInfoNotes(); });
+    // Grow a card textarea to fit all its text (no internal scroll).
+    function autosize(ta){ if (!ta || ta.offsetParent === null) return; ta.style.height = 'auto'; ta.style.height = Math.max(46, ta.scrollHeight) + 'px'; }
+    function autosizeCards(){ var list = panelEl.querySelectorAll('.ooto-card textarea'); for (var i = 0; i < list.length; i++) autosize(list[i]); }
+    function sizeActive(){ if (active === 'info') sizeInfoNotes(); else autosizeCards(); }
+    window.addEventListener('resize', function(){ sizeActive(); });
     // Called when the OOTO view is switched into (it was rendered while hidden).
-    window.__ootoShown = function(){ if (active === 'info') requestAnimationFrame(sizeInfoNotes); };
+    window.__ootoShown = function(){ requestAnimationFrame(sizeActive); };
     function render(){ renderTabs(); renderPanel(); }
 
     tabsEl.addEventListener('click', function(e){ var b = e.target.closest('.ooto-tab'); if (!b) return; active = b.getAttribute('data-tab'); render(); });
@@ -1322,6 +1327,7 @@
       var d = designer(card.getAttribute('data-key')); if (!d) return;
       var p = d.projects.filter(function(x){ return x.id===card.getAttribute('data-id'); })[0]; if (!p) return;
       p[f] = e.target.value; save();
+      if (e.target.tagName === 'TEXTAREA') autosize(e.target);
       if (f === 'url'){ var a = card.querySelector('[data-open]'); if (a){ var v = e.target.value.trim(); if (v){ a.href = v; a.style.display = ''; } else { a.style.display = 'none'; } } }
     });
     panelEl.addEventListener('click', function(e){
