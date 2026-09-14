@@ -151,6 +151,24 @@
   .ooto-lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 5px;}
   .ooto-info-notes{width:100%;min-height:140px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;line-height:20px;color:var(--text);background:var(--surface-2);outline:none;resize:vertical;}
   .ooto-info-notes:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.12);background:var(--surface);}
+  /* OOTO project card header + link */
+  .ooto-card-hd{display:flex;align-items:center;gap:12px;padding-right:24px;}
+  .ooto-card-hd .ooto-title{flex:1;padding-right:0;}
+  .ooto-open{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--brand);text-decoration:none;white-space:nowrap;}
+  .ooto-open:hover{text-decoration:underline;}
+  .ooto-open svg{width:13px;height:13px;}
+  .ooto-link{width:100%;height:38px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-family:inherit;font-size:13.5px;color:var(--text);background:var(--surface-2);outline:none;}
+  .ooto-link:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.12);background:var(--surface);}
+  /* OOTO add-project picker menu */
+  .ooto-menu{position:absolute;z-index:120;min-width:230px;max-height:340px;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.16);padding:6px;}
+  .ooto-menu-lbl{font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--muted-2);padding:6px 10px 4px;}
+  .ooto-menu-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;background:none;font-family:inherit;font-size:13.5px;color:var(--text);padding:9px 10px;border-radius:7px;cursor:pointer;}
+  .ooto-menu-item:hover{background:var(--surface-hover);}
+  .ooto-menu-item svg{width:15px;height:15px;flex:0 0 auto;}
+  .ooto-menu-dot{width:7px;height:7px;border-radius:50%;background:var(--brand);flex:0 0 auto;}
+  .ooto-menu-new{color:var(--brand);font-weight:600;}
+  .ooto-menu-div{height:1px;background:var(--border);margin:5px 4px;}
+  .ooto-menu-empty{font-size:12.5px;color:var(--muted-2);padding:8px 10px;}
   /* User Settings */
   .set-wrap{display:flex;flex-direction:column;gap:20px;max-width:620px;}
   .set-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 22px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
@@ -1140,9 +1158,15 @@
     function designer(key){ return DATA.designers.filter(function(d){ return d.key===key; })[0]; }
     function save(){ clearTimeout(saveT); saveT = setTimeout(function(){ fetch('/api/ooto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ data:DATA }) }).catch(function(){}); }, 600); }
 
+    var OPENSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>';
     function cardHTML(key, p){
+      var hasUrl = !!(p.url && p.url.trim());
       return '<button class="ooto-del" type="button" title="Remove project">&times;</button>' +
-        '<input class="ooto-title" data-f="title" value="' + esc(p.title||'') + '" placeholder="Project name" />' +
+        '<div class="ooto-card-hd">' +
+          '<input class="ooto-title" data-f="title" value="' + esc(p.title||'') + '" placeholder="Project name" />' +
+          '<a class="ooto-open" data-open target="_blank" rel="noopener" href="' + esc(p.url||'#') + '"' + (hasUrl?'':' style="display:none"') + '>Open' + OPENSVG + '</a>' +
+        '</div>' +
+        '<div class="ooto-field"><label>Project link</label><input class="ooto-link" data-f="url" type="url" value="' + esc(p.url||'') + '" placeholder="https://… landing page" /></div>' +
         '<div class="ooto-field"><label>Notes</label><textarea data-f="notes" placeholder="Handoff notes — status, what needs doing…">' + esc(p.notes||'') + '</textarea></div>' +
         '<div class="ooto-field"><label>Contacts</label><textarea data-f="contacts" placeholder="Who to contact (Teams, email, phone)…">' + esc(p.contacts||'') + '</textarea></div>' +
         '<div class="ooto-field dnotes"><label>' + esc(meta(key).name) + '’s notes</label><textarea data-f="dnotes" placeholder="Add your own notes here…">' + esc(p.dnotes||'') + '</textarea></div>';
@@ -1184,13 +1208,47 @@
       var d = designer(card.getAttribute('data-key')); if (!d) return;
       var p = d.projects.filter(function(x){ return x.id===card.getAttribute('data-id'); })[0]; if (!p) return;
       p[f] = e.target.value; save();
+      if (f === 'url'){ var a = card.querySelector('[data-open]'); if (a){ var v = e.target.value.trim(); if (v){ a.href = v; a.style.display = ''; } else { a.style.display = 'none'; } } }
     });
     panelEl.addEventListener('click', function(e){
       var add = e.target.closest('.ooto-add');
-      if (add){ var d = designer(add.getAttribute('data-key')); d.projects.push({ id:'p-'+Date.now(), title:'', notes:'', contacts:'', dnotes:'' }); renderPanel(); save(); return; }
+      if (add){ openAddMenu(add, add.getAttribute('data-key')); return; }
       var del = e.target.closest('.ooto-del');
       if (del){ var card = del.closest('.ooto-card'); var dd = designer(card.getAttribute('data-key')); dd.projects = dd.projects.filter(function(x){ return x.id!==card.getAttribute('data-id'); }); renderPanel(); save(); }
     });
+
+    // ── "Add project" picker: choose an existing portal project (fills its
+    //    landing-page link) or start a brand-new custom one. ──────────────────
+    var addMenu = null;
+    function portalProjects(){ return (window.PROJECTS || []).filter(function(p){ return p.url; }).map(function(p){ return { title:p.title, url:p.url }; }); }
+    function addProject(key, proj){
+      var d = designer(key); if (!d) return;
+      d.projects.push({ id:'p-'+Date.now(), title:(proj&&proj.title)||'', url:(proj&&proj.url)||'', notes:'', contacts:'', dnotes:'' });
+      renderPanel(); save();
+    }
+    function closeAddMenu(){ if (addMenu){ addMenu.remove(); addMenu = null; document.removeEventListener('click', onDocClick, true); document.removeEventListener('keydown', onEsc, true); } }
+    function onDocClick(e){ if (addMenu && !addMenu.contains(e.target) && !e.target.closest('.ooto-add')) closeAddMenu(); }
+    function onEsc(e){ if (e.key === 'Escape') closeAddMenu(); }
+    function openAddMenu(btn, key){
+      if (addMenu){ closeAddMenu(); return; }
+      var opts = portalProjects();
+      var html = '<div class="ooto-menu-lbl">Add an existing project</div>';
+      opts.forEach(function(o, i){ html += '<button class="ooto-menu-item" type="button" data-i="' + i + '"><span class="ooto-menu-dot"></span>' + esc(o.title) + '</button>'; });
+      if (!opts.length) html += '<div class="ooto-menu-empty">No portal projects found</div>';
+      html += '<div class="ooto-menu-div"></div><button class="ooto-menu-item ooto-menu-new" type="button" data-new="1">' + PLUS + 'New project…</button>';
+      addMenu = document.createElement('div'); addMenu.className = 'ooto-menu'; addMenu.innerHTML = html;
+      document.body.appendChild(addMenu);
+      var r = btn.getBoundingClientRect(), mw = addMenu.getBoundingClientRect().width;
+      addMenu.style.top = (r.bottom + window.scrollY + 6) + 'px';
+      addMenu.style.left = Math.max(12, r.right + window.scrollX - mw) + 'px';
+      addMenu.addEventListener('click', function(e){
+        var it = e.target.closest('.ooto-menu-item'); if (!it) return;
+        if (it.getAttribute('data-new')) addProject(key, null);
+        else addProject(key, opts[+it.getAttribute('data-i')]);
+        closeAddMenu();
+      });
+      setTimeout(function(){ document.addEventListener('click', onDocClick, true); document.addEventListener('keydown', onEsc, true); }, 0);
+    }
 
     DATA = seed(); render();
     fetch('/api/ooto').then(function(r){ return r.ok ? r.json() : null; }).then(function(res){
