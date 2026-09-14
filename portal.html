@@ -115,6 +115,28 @@
   .doc-card ul{margin:0 0 8px;padding-left:20px;}
   .doc-card li{font-size:14px;line-height:22px;color:var(--text);margin:0 0 4px;}
   .doc-muted{color:var(--muted-2);}
+  /* OOTO coverage board */
+  .ooto-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+  @media(max-width:900px){ .ooto-cols{grid-template-columns:1fr;} }
+  .ooto-col-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding-bottom:12px;border-bottom:2px solid var(--border);}
+  .ooto-col-hd h2{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;color:var(--text);margin:0;}
+  .ooto-col-hd .oav{width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:0 0 auto;}
+  .ooto-add{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .ooto-add:hover{background:var(--surface-hover);}
+  .ooto-add svg{width:15px;height:15px;}
+  .ooto-cards{display:flex;flex-direction:column;gap:16px;}
+  .ooto-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 16px 14px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  .ooto-title{width:100%;border:0;background:none;font-family:inherit;font-size:16px;font-weight:700;color:var(--text);outline:none;padding:0 26px 0 0;}
+  .ooto-title::placeholder{color:var(--muted-2);font-weight:600;}
+  .ooto-del{position:absolute;top:12px;right:12px;width:26px;height:26px;border:0;background:none;border-radius:6px;color:var(--muted-2);cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .ooto-del:hover{background:var(--surface-hover);color:#c0392b;}
+  .ooto-field{margin-top:12px;}
+  .ooto-field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 5px;}
+  .ooto-field textarea{width:100%;min-height:50px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13.5px;line-height:19px;color:var(--text);background:var(--surface-2);outline:none;resize:vertical;}
+  .ooto-field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.12);background:var(--surface);}
+  .ooto-field.dnotes textarea{background:#fffbeb;border-color:#fde68a;}
+  html[data-theme="dark"] .ooto-field.dnotes textarea{background:#2a2410;border-color:#5b4a25;}
+  .ooto-empty{color:var(--muted-2);font-size:13px;padding:18px;text-align:center;border:1px dashed var(--border-strong);border-radius:10px;}
 
   .sb-overlay{position:fixed;inset:var(--header-h) 0 0 0;background:rgba(10,15,30,.4);z-index:25;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;}
   @media (max-width:899px){ body.sb-open .sb-overlay{opacity:1;visibility:visible;} }
@@ -492,26 +514,10 @@
       <div class="content-hd">
         <div>
           <h1>Alex's OOTO</h1>
-          <p class="view-sub">Out-of-office coverage &amp; key contacts</p>
+          <p class="view-sub">Project coverage while I'm on paternity leave — Jason &amp; Lele. Changes save automatically.</p>
         </div>
       </div>
-      <div class="doc-card">
-        <p class="doc-lead">A quick reference for when I'm out of the office — who's covering what, who to contact, and what can wait until I'm back.</p>
-        <h3>Dates out</h3>
-        <p class="doc-muted">Add your out-of-office dates and expected return here.</p>
-        <h3>Coverage while I'm away</h3>
-        <ul>
-          <li>Prototypes &amp; UX reviews — <span class="doc-muted">add owner</span></li>
-          <li>Design System (ODS) — <span class="doc-muted">add owner</span></li>
-          <li>Stakeholder &amp; ad-hoc requests — <span class="doc-muted">add owner</span></li>
-        </ul>
-        <h3>Key contacts</h3>
-        <p class="doc-muted">List who to reach for each area and how (Teams, email, phone).</p>
-        <h3>Urgent &amp; escalation</h3>
-        <p class="doc-muted">Note what counts as urgent and who to escalate to first.</p>
-        <h3>What can wait</h3>
-        <p class="doc-muted">Anything that can hold until I'm back.</p>
-      </div>
+      <div class="ooto-cols" id="ooto-cols"></div>
     </div>
   </main>
 
@@ -1003,6 +1009,61 @@
 
     // init
     applyTier(); updateTeamLabels(); renderTeam(); fetchMe(); loadFromServer();
+  })();
+
+  /* ── OOTO coverage board (two designers, auto-saved to /api/ooto) ── */
+  (function(){
+    var host = document.getElementById('ooto-cols');
+    if (!host) return;
+    var DESIGNERS = [ { key:'jason', name:'Jason', color:'#0891b2' }, { key:'lele', name:'Lele', color:'#7c3aed' } ];
+    var PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
+    var DATA = null, saveT = null;
+
+    function meta(key){ return DESIGNERS.filter(function(d){ return d.key===key; })[0] || { name:'', color:'#64748B' }; }
+    function seed(){ return { designers: DESIGNERS.map(function(d){ return { key:d.key, name:d.name, projects:[] }; }) }; }
+    function ensureAll(data){ DESIGNERS.forEach(function(m){ if (!data.designers.some(function(d){ return d.key===m.key; })) data.designers.push({ key:m.key, name:m.name, projects:[] }); }); return data; }
+    function designer(key){ return DATA.designers.filter(function(d){ return d.key===key; })[0]; }
+    function save(){ clearTimeout(saveT); saveT = setTimeout(function(){ fetch('/api/ooto', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ data:DATA }) }).catch(function(){}); }, 600); }
+
+    function cardHTML(key, p){
+      return '<button class="ooto-del" type="button" title="Remove project">&times;</button>' +
+        '<input class="ooto-title" data-f="title" value="' + esc(p.title||'') + '" placeholder="Project name" />' +
+        '<div class="ooto-field"><label>Notes</label><textarea data-f="notes" placeholder="Handoff notes — status, what needs doing…">' + esc(p.notes||'') + '</textarea></div>' +
+        '<div class="ooto-field"><label>Contacts</label><textarea data-f="contacts" placeholder="Who to contact (Teams, email, phone)…">' + esc(p.contacts||'') + '</textarea></div>' +
+        '<div class="ooto-field dnotes"><label>' + esc(meta(key).name) + '’s notes</label><textarea data-f="dnotes" placeholder="Add your own notes here…">' + esc(p.dnotes||'') + '</textarea></div>';
+    }
+    function render(){
+      host.innerHTML = '';
+      DESIGNERS.forEach(function(m){
+        var d = designer(m.key) || { key:m.key, name:m.name, projects:[] };
+        var col = document.createElement('div'); col.className = 'ooto-col';
+        col.innerHTML = '<div class="ooto-col-hd"><h2><span class="oav" style="background:' + m.color + '">' + esc(m.name[0]) + '</span>' + esc(m.name) + '</h2>' +
+          '<button class="ooto-add" type="button" data-key="' + m.key + '">' + PLUS + 'Add project</button></div><div class="ooto-cards"></div>';
+        var cards = col.querySelector('.ooto-cards');
+        if (!d.projects.length){ cards.innerHTML = '<div class="ooto-empty">No projects yet — click “Add project.”</div>'; }
+        d.projects.forEach(function(p){ var el = document.createElement('div'); el.className='ooto-card'; el.setAttribute('data-key', m.key); el.setAttribute('data-id', p.id); el.innerHTML = cardHTML(m.key, p); cards.appendChild(el); });
+        host.appendChild(col);
+      });
+    }
+
+    host.addEventListener('input', function(e){
+      var f = e.target.getAttribute('data-f'); if (!f) return;
+      var card = e.target.closest('.ooto-card'); if (!card) return;
+      var d = designer(card.getAttribute('data-key')); if (!d) return;
+      var p = d.projects.filter(function(x){ return x.id===card.getAttribute('data-id'); })[0]; if (!p) return;
+      p[f] = e.target.value; save();
+    });
+    host.addEventListener('click', function(e){
+      var add = e.target.closest('.ooto-add');
+      if (add){ var d = designer(add.getAttribute('data-key')); d.projects.push({ id:'p-'+Date.now(), title:'', notes:'', contacts:'', dnotes:'' }); render(); save(); return; }
+      var del = e.target.closest('.ooto-del');
+      if (del){ var card = del.closest('.ooto-card'); var dd = designer(card.getAttribute('data-key')); dd.projects = dd.projects.filter(function(x){ return x.id!==card.getAttribute('data-id'); }); render(); save(); }
+    });
+
+    DATA = seed(); render();
+    fetch('/api/ooto').then(function(r){ return r.ok ? r.json() : null; }).then(function(res){
+      if (res && res.data && Array.isArray(res.data.designers)){ DATA = ensureAll(res.data); render(); }
+    }).catch(function(){});
   })();
 
   /* ── Header user dropdown ── */
