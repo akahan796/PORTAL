@@ -151,6 +151,25 @@
   .ooto-lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 5px;}
   .ooto-info-notes{width:100%;min-height:140px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13.5px;line-height:20px;color:var(--text);background:var(--surface-2);outline:none;resize:vertical;}
   .ooto-info-notes:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(10,93,255,.12);background:var(--surface);}
+  /* User Settings */
+  .set-wrap{display:flex;flex-direction:column;gap:20px;max-width:620px;}
+  .set-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 22px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .set-h{font-size:15px;font-weight:700;color:var(--text);margin:0 0 18px;}
+  .set-av-row{display:flex;align-items:center;gap:18px;margin-bottom:20px;}
+  .set-av{width:76px;height:76px;border-radius:50%;flex:0 0 auto;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;background-size:cover;background-position:center;}
+  .set-av-actions{min-width:0;}
+  .set-av-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn-outline{height:34px;padding:0 14px;border:1px solid var(--border-strong);border-radius:7px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .btn-outline:hover{background:var(--surface-hover);}
+  .btn-ghost-danger{height:34px;padding:0 12px;border:0;border-radius:7px;background:none;color:#c0392b;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .btn-ghost-danger:hover{background:rgba(192,57,43,.08);}
+  .set-hint{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:16px;}
+  .set-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:560px){ .set-grid{grid-template-columns:1fr;} }
+  .set-actions{display:flex;align-items:center;gap:14px;margin-top:4px;}
+  .set-actions .set-btn{flex:0 0 auto;width:auto;min-width:150px;padding:0 20px;}
+  .set-msg{font-size:13px;font-weight:600;}
+  .set-msg.ok{color:#1a7f37;} .set-msg.err{color:#c0392b;}
 
   .sb-overlay{position:fixed;inset:var(--header-h) 0 0 0;background:rgba(10,15,30,.4);z-index:25;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;}
   @media (max-width:899px){ body.sb-open .sb-overlay{opacity:1;visibility:visible;} }
@@ -381,9 +400,9 @@
         <div class="user-dd" id="user-dd">
           <div class="udd-head"><div class="udd-name" id="udd-name"></div><div class="udd-email" id="udd-email"></div></div>
           <div class="udd-div"></div>
-          <button class="udd-item js-open-pw" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Change password
+          <button class="udd-item js-open-settings" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            User Settings
           </button>
           <a class="udd-item" href="/api/logout">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
@@ -529,6 +548,60 @@
       <div class="ooto-tabs" id="ooto-tabs"></div>
       <div class="ooto-panels" id="ooto-panels"></div>
     </div>
+
+    <!-- User Settings view -->
+    <div id="settings-view" style="display:none">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/portal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</a>
+        <span class="sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span><span>Portal</span>
+        <span class="sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span><span class="cur">User Settings</span>
+      </nav>
+      <div class="content-hd">
+        <div>
+          <h1>User Settings</h1>
+          <p class="view-sub">Update your profile details, photo, and password.</p>
+        </div>
+      </div>
+
+      <div class="set-wrap">
+        <section class="set-card">
+          <h2 class="set-h">Profile</h2>
+          <div class="set-av-row">
+            <div class="set-av" id="set-av"></div>
+            <div class="set-av-actions">
+              <div class="set-av-btns">
+                <button class="btn-outline" id="set-upload" type="button">Upload photo</button>
+                <button class="btn-ghost-danger" id="set-remove" type="button">Remove</button>
+              </div>
+              <p class="set-hint">JPG or PNG. Square images look best — we store it at 160&times;160.</p>
+              <input type="file" id="set-file" accept="image/png,image/jpeg,image/webp" hidden />
+            </div>
+          </div>
+          <div class="set-grid">
+            <div class="fld"><label for="set-first">First name <span class="req">*</span></label><input id="set-first" type="text" autocomplete="given-name" /></div>
+            <div class="fld"><label for="set-last">Last name</label><input id="set-last" type="text" autocomplete="family-name" /></div>
+          </div>
+          <div class="fld"><label for="set-email">Email</label><input id="set-email" type="email" autocomplete="email" /></div>
+          <div class="set-actions">
+            <button class="btn-primary set-btn" id="set-save" type="button">Save changes</button>
+            <span class="set-msg" id="set-msg"></span>
+          </div>
+        </section>
+
+        <section class="set-card">
+          <h2 class="set-h">Password</h2>
+          <div class="fld"><label for="set-cur">Current password</label><input id="set-cur" type="password" autocomplete="current-password" /></div>
+          <div class="set-grid">
+            <div class="fld"><label for="set-new">New password</label><input id="set-new" type="password" autocomplete="new-password" /></div>
+            <div class="fld"><label for="set-conf">Confirm new password</label><input id="set-conf" type="password" autocomplete="new-password" /></div>
+          </div>
+          <div class="set-actions">
+            <button class="btn-primary set-btn" id="set-pw-save" type="button">Update password</button>
+            <span class="set-msg" id="set-pw-msg"></span>
+          </div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <!-- ── Create New Project side panel ── -->
@@ -661,6 +734,12 @@
   function colorOf(role){ return (ROLE_TYPES[role]||{}).color || '#64748B'; }
   function initialsOf(name){ var p=String(name||'').trim().split(/\s+/); return (((p[0]||' ')[0]||'') + (p.length>1?(p[p.length-1][0]||''):'')).toUpperCase(); }
   function fullName(m){ return (((m.first||'') + ' ' + (m.last||'')).trim()) || (m.name||''); }
+  // Paint a circular avatar element: uploaded photo if present, else coloured initials.
+  function paintAv(el, m){
+    if (!el) return;
+    if (m && m.avatar){ el.textContent=''; el.style.backgroundImage='url('+m.avatar+')'; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.style.backgroundColor='transparent'; }
+    else { el.style.backgroundImage='none'; el.textContent = m ? initialsOf(fullName(m)) : ''; el.style.backgroundColor = m ? colorOf(m.role) : 'var(--brand)'; }
+  }
   var ROLE_ICON = {
     'Super Administrator':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
     'UX Manager':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
@@ -746,6 +825,7 @@
     document.getElementById('projects-view').style.display = v==='projects' ? '' : 'none';
     document.getElementById('team-view').style.display = v==='team' ? '' : 'none';
     document.getElementById('ooto-view').style.display = v==='ooto' ? '' : 'none';
+    var sv = document.getElementById('settings-view'); if (sv) sv.style.display = v==='settings' ? '' : 'none';
   }
   function setActiveNav(el){
     document.querySelectorAll('.sidebar .nav-item').forEach(function(x){ x.classList.remove('active'); });
@@ -958,11 +1038,13 @@
       var first = ME ? (ME.first || (fullName(ME).split(' ')[0]) || '') : '';
       var nm = document.getElementById('hd-user-name'), av = document.getElementById('hd-user-av');
       if (nm) nm.textContent = first;
-      if (av){ av.textContent = ME ? initialsOf(fullName(ME)) : ''; av.style.background = ME ? colorOf(ME.role) : 'var(--brand)'; }
+      paintAv(av, ME);
       var ddn = document.getElementById('udd-name'), dde = document.getElementById('udd-email');
       if (ddn) ddn.textContent = ME ? fullName(ME) : '';
       if (dde) dde.textContent = ME ? (ME.email || '') : '';
     }
+    // Let the User Settings page refresh the header/team after a save.
+    window.portalUI = { refreshMe: fetchMe, updateHeader: updateHeaderUser };
     function fetchMe(){
       fetch('/api/me').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
         if (d && d.user){ ME = d.user; currentTier = tierOf(ME.role); applyTier(); updateTeamLabels(); updateHeaderUser(); renderTeam(); }
@@ -1114,6 +1196,91 @@
     fetch('/api/ooto').then(function(r){ return r.ok ? r.json() : null; }).then(function(res){
       if (res && res.data && typeof res.data === 'object'){ DATA = ensureAll(res.data); render(); }
     }).catch(function(){});
+  })();
+
+  /* ── User Settings page (profile + photo + password) ── */
+  (function(){
+    var view = document.getElementById('settings-view');
+    if (!view) return;
+    var avEl = document.getElementById('set-av'), fileEl = document.getElementById('set-file');
+    var first = document.getElementById('set-first'), last = document.getElementById('set-last'), email = document.getElementById('set-email');
+    var msg = document.getElementById('set-msg'), saveBtn = document.getElementById('set-save');
+    var cur = document.getElementById('set-cur'), nw = document.getElementById('set-new'), conf = document.getElementById('set-conf');
+    var pwMsg = document.getElementById('set-pw-msg'), pwBtn = document.getElementById('set-pw-save');
+    var pendingAvatar; // undefined = unchanged, string = new photo, null = remove
+
+    function showM(el, t, ok){ el.textContent = t; el.className = 'set-msg ' + (ok ? 'ok' : 'err'); }
+    function clearM(el){ el.textContent = ''; el.className = 'set-msg'; }
+    function typed(){ return { first:first.value, last:last.value, role: ME ? ME.role : '' }; }
+
+    function populate(){
+      pendingAvatar = undefined;
+      first.value = ME ? (ME.first || '') : '';
+      last.value  = ME ? (ME.last || '') : '';
+      email.value = ME ? (ME.email || '') : '';
+      paintAv(avEl, ME);
+      clearM(msg); clearM(pwMsg);
+      cur.value = ''; nw.value = ''; conf.value = '';
+    }
+    function open(){ showView('settings'); setActiveNav(null); populate(); if (window.innerWidth < 900) document.body.classList.remove('sb-open'); }
+    document.querySelectorAll('.js-open-settings').forEach(function(b){ b.addEventListener('click', open); });
+
+    document.getElementById('set-upload').addEventListener('click', function(){ fileEl.click(); });
+    document.getElementById('set-remove').addEventListener('click', function(){ pendingAvatar = null; paintAv(avEl, typed()); clearM(msg); });
+    fileEl.addEventListener('change', function(){
+      var f = fileEl.files && fileEl.files[0]; if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var S = 160, c = document.createElement('canvas'); c.width = S; c.height = S;
+          var ctx = c.getContext('2d');
+          var scale = Math.max(S / img.width, S / img.height);
+          var w = img.width * scale, h = img.height * scale;
+          ctx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+          pendingAvatar = c.toDataURL('image/jpeg', 0.85);
+          avEl.textContent = ''; avEl.style.backgroundImage = 'url(' + pendingAvatar + ')'; avEl.style.backgroundColor = 'transparent';
+          clearM(msg);
+        };
+        img.onerror = function(){ showM(msg, 'That file could not be read as an image.', false); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+      fileEl.value = '';
+    });
+
+    saveBtn.addEventListener('click', function(){
+      if (!first.value.trim()){ showM(msg, 'First name is required.', false); first.focus(); return; }
+      var payload = { first:first.value, last:last.value, email:email.value };
+      if (pendingAvatar !== undefined) payload.avatar = pendingAvatar;
+      saveBtn.disabled = true; showM(msg, 'Saving…', true);
+      fetch('/api/profile', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
+        .then(function(r){ return r.json().then(function(d){ return { s:r.status, d:d }; }); })
+        .then(function(res){
+          saveBtn.disabled = false;
+          if (res.s === 200 && res.d.ok){
+            ME = res.d.user; pendingAvatar = undefined;
+            if (window.portalUI) window.portalUI.updateHeader();
+            paintAv(avEl, ME);
+            showM(msg, 'Saved.', true); toast('Profile updated');
+          } else { showM(msg, (res.d && res.d.message) || 'Could not save your changes.', false); }
+        }).catch(function(){ saveBtn.disabled = false; showM(msg, 'Network error. Try again.', false); });
+    });
+
+    pwBtn.addEventListener('click', function(){
+      clearM(pwMsg);
+      if (!cur.value){ showM(pwMsg, 'Enter your current password.', false); cur.focus(); return; }
+      if (nw.value.length < 6){ showM(pwMsg, 'New password must be at least 6 characters.', false); return; }
+      if (nw.value !== conf.value){ showM(pwMsg, 'New passwords do not match.', false); return; }
+      pwBtn.disabled = true; showM(pwMsg, 'Updating…', true);
+      fetch('/api/password', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ current:cur.value, next:nw.value }) })
+        .then(function(r){ return r.json().then(function(d){ return { s:r.status, d:d }; }); })
+        .then(function(res){
+          pwBtn.disabled = false;
+          if (res.s === 200 && res.d.ok){ cur.value=''; nw.value=''; conf.value=''; showM(pwMsg, 'Password updated. Use it next time you sign in.', true); toast('Password updated'); }
+          else { showM(pwMsg, (res.d && res.d.message) || 'Could not update password.', false); }
+        }).catch(function(){ pwBtn.disabled = false; showM(pwMsg, 'Network error. Try again.', false); });
+    });
   })();
 
   /* ── Header user dropdown ── */
