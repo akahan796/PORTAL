@@ -828,9 +828,13 @@
     if (t.owner)   meta.push('Owner <b>' + esc(t.owner) + '</b>');
     if (t.version) meta.push('<b>' + esc(t.version) + '</b>');
     var metaHTML = meta.length ? '<div class="meta">' + meta.join(' <span class="sep">·</span> ') + '</div>' : '';
+    // Open via the SSO hand-off so a logged-in portal user isn't re-prompted for a
+    // password on the project site. ODS is public, so it opens directly.
+    var ssoKey = (t.repo && t.repo.toUpperCase() !== 'ODS') ? t.repo.toLowerCase() : '';
+    var openHref = ssoKey ? '/api/sso?to=' + encodeURIComponent(ssoKey) : esc(t.url);
     return '<h3>' + esc(t.title) + '</h3>' +
       '<p class="desc">' + esc(t.desc) + '</p>' + metaHTML +
-      '<a class="btn-open" href="' + esc(t.url) + '">Open' + OPEN_ICON + '</a>' +
+      '<a class="btn-open" href="' + openHref + '">Open' + OPEN_ICON + '</a>' +
       '<button class="btn-copy" type="button" data-url="' + esc(t.url) + '">' + COPY_ICON + '<span>Copy link</span></button>';
   }
 
