@@ -146,6 +146,13 @@
   .ooto-dl{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
   .ooto-dl:hover{background:var(--surface-hover);border-color:var(--brand);color:var(--brand);}
   .ooto-dl svg{width:15px;height:15px;}
+  .ooto-banner{display:flex;align-items:center;gap:9px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--muted);margin:0 0 20px;}
+  .ooto-banner svg{width:15px;height:15px;flex:0 0 auto;color:var(--muted-2);}
+  .ooto-locked{background:var(--surface-2)!important;color:var(--muted)!important;cursor:default!important;}
+  .ooto-locked:focus{border-color:var(--border)!important;box-shadow:none!important;background:var(--surface-2)!important;}
+  input.ooto-date.ooto-locked{pointer-events:none;}
+  .ooto-date.ooto-locked::-webkit-calendar-picker-indicator{display:none;}
+  textarea.ooto-locked{resize:none;}
   .ooto-info{max-width:680px;}
   .ooto-info-h{font-size:16px;font-weight:700;color:var(--text);margin:0 0 14px;}
   .ooto-info-dates{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
@@ -1150,7 +1157,16 @@
     var TABS = [{ key:'info', name:'Information' }].concat(DESIGNERS.map(function(d){ return { key:d.key, name:d.name }; }));
     var PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
     var DLSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
+    var LOCKSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
     var DATA = null, saveT = null, active = 'info';
+    // Access rules (authoritative copy comes from the server on GET; default to
+    // read-only until then). owner = akahan@… edits everything; a designer whose
+    // login maps to a tab may edit only their own notes on their own projects.
+    var PERMS = { owner:false, designerKey:null };
+    function canEditAll(){ return PERMS.owner; }
+    function canEditDnotes(key){ return PERMS.owner || PERMS.designerKey === key; }
+    function roAttr(editable){ return editable ? '' : ' readonly'; }
+    function roClass(editable){ return editable ? '' : ' ooto-locked'; }
 
     function meta(key){ return DESIGNERS.filter(function(d){ return d.key===key; })[0] || { name:'', color:'#64748B' }; }
     function seed(){ return { info:{ start:'', end:'', notes:'' }, designers: DESIGNERS.map(function(d){ return { key:d.key, name:d.name, projects:[] }; }) }; }
@@ -1166,36 +1182,46 @@
     var OPENSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>';
     function cardHTML(key, p){
       var hasUrl = !!(p.url && p.url.trim());
-      return '<button class="ooto-del" type="button" title="Remove project">&times;</button>' +
+      var all = canEditAll(), dn = canEditDnotes(key);
+      var dnPlaceholder = dn ? 'Add your own notes here…' : 'No notes yet.';
+      return (all ? '<button class="ooto-del" type="button" title="Remove project">&times;</button>' : '') +
         '<div class="ooto-card-hd">' +
-          '<input class="ooto-title" data-f="title" value="' + esc(p.title||'') + '" placeholder="Project name" />' +
+          '<input class="ooto-title' + roClass(all) + '" data-f="title" value="' + esc(p.title||'') + '" placeholder="Project name"' + roAttr(all) + ' />' +
           '<a class="ooto-open" data-open target="_blank" rel="noopener" href="' + esc(p.url||'#') + '"' + (hasUrl?'':' style="display:none"') + '>Open' + OPENSVG + '</a>' +
         '</div>' +
-        '<div class="ooto-field"><label>Project link</label><input class="ooto-link" data-f="url" type="url" value="' + esc(p.url||'') + '" placeholder="https://… landing page" /></div>' +
-        '<div class="ooto-field"><label>Notes</label><textarea data-f="notes" placeholder="Handoff notes — status, what needs doing…">' + esc(p.notes||'') + '</textarea></div>' +
-        '<div class="ooto-field"><label>Contacts</label><textarea data-f="contacts" placeholder="Who to contact (Teams, email, phone)…">' + esc(p.contacts||'') + '</textarea></div>' +
-        '<div class="ooto-field dnotes"><label>' + esc(meta(key).name) + '’s notes</label><textarea data-f="dnotes" placeholder="Add your own notes here…">' + esc(p.dnotes||'') + '</textarea></div>';
+        '<div class="ooto-field"><label>Project link</label><input class="ooto-link' + roClass(all) + '" data-f="url" type="url" value="' + esc(p.url||'') + '" placeholder="https://… landing page"' + roAttr(all) + ' /></div>' +
+        '<div class="ooto-field"><label>Notes</label><textarea class="' + roClass(all).trim() + '" data-f="notes" placeholder="Handoff notes — status, what needs doing…"' + roAttr(all) + '>' + esc(p.notes||'') + '</textarea></div>' +
+        '<div class="ooto-field"><label>Contacts</label><textarea class="' + roClass(all).trim() + '" data-f="contacts" placeholder="Who to contact (Teams, email, phone)…"' + roAttr(all) + '>' + esc(p.contacts||'') + '</textarea></div>' +
+        '<div class="ooto-field dnotes"><label>' + esc(meta(key).name) + '’s notes</label><textarea class="' + roClass(dn).trim() + '" data-f="dnotes" placeholder="' + dnPlaceholder + '"' + roAttr(dn) + '>' + esc(p.dnotes||'') + '</textarea></div>';
+    }
+    function bannerHTML(){
+      if (PERMS.owner) return '';
+      var msg = PERMS.designerKey
+        ? 'You can add and edit your own notes on your projects. Everything else is managed by Alex.'
+        : 'You have view-only access to this coverage board.';
+      return '<div class="ooto-banner">' + LOCKSVG + '<span>' + esc(msg) + '</span></div>';
     }
     function infoPanelHTML(){
-      var i = DATA.info || {};
+      var i = DATA.info || {}, all = canEditAll();
       return '<div class="ooto-info-bar"><button class="ooto-dl" type="button" title="Generate a distributable summary of the whole coverage plan">' + DLSVG + 'Download summary</button></div>' +
         '<div class="ooto-info">' +
         '<h2 class="ooto-info-h">Paternity leave</h2>' +
         '<div class="ooto-info-dates">' +
-          '<div class="ooto-field"><label>Start date</label><input type="date" class="ooto-date" data-info="start" value="' + esc(i.start||'') + '"></div>' +
-          '<div class="ooto-field"><label>End date</label><input type="date" class="ooto-date" data-info="end" value="' + esc(i.end||'') + '"></div>' +
+          '<div class="ooto-field"><label>Start date</label><input type="date" class="ooto-date' + roClass(all) + '" data-info="start" value="' + esc(i.start||'') + '"' + roAttr(all) + '></div>' +
+          '<div class="ooto-field"><label>End date</label><input type="date" class="ooto-date' + roClass(all) + '" data-info="end" value="' + esc(i.end||'') + '"' + roAttr(all) + '></div>' +
         '</div>' +
         '<label class="ooto-lbl">Notes</label>' +
-        '<textarea class="ooto-info-notes" data-info="notes" placeholder="Coverage overview, key dates, how to reach me in an emergency, escalation path, anything the team should know…">' + esc(i.notes||'') + '</textarea>' +
+        '<textarea class="ooto-info-notes' + roClass(all) + '" data-info="notes" placeholder="Coverage overview, key dates, how to reach me in an emergency, escalation path, anything the team should know…"' + roAttr(all) + '>' + esc(i.notes||'') + '</textarea>' +
       '</div>';
     }
     function designerPanelHTML(key){
       var m = meta(key); var d = designer(key) || { projects:[] };
+      var empty = canEditAll() ? 'No projects yet — click “Add project.”' : 'No projects assigned yet.';
       var cards = d.projects.length
         ? d.projects.map(function(p){ return '<div class="ooto-card" data-key="' + key + '" data-id="' + p.id + '">' + cardHTML(key, p) + '</div>'; }).join('')
-        : '<div class="ooto-empty">No projects yet — click “Add project.”</div>';
+        : '<div class="ooto-empty">' + empty + '</div>';
       return '<div class="ooto-col-hd"><h2><span class="oav" style="background:' + m.color + '">' + esc(m.name[0]) + '</span>' + esc(m.name) + '</h2>' +
-        '<button class="ooto-add" type="button" data-key="' + key + '">' + PLUS + 'Add project</button></div>' +
+        (canEditAll() ? '<button class="ooto-add" type="button" data-key="' + key + '">' + PLUS + 'Add project</button>' : '') + '</div>' +
         '<div class="ooto-cards">' + cards + '</div>';
     }
     // ── Build a self-contained, printable summary document of the whole board ──
@@ -1262,7 +1288,7 @@
     function renderTabs(){
       tabsEl.innerHTML = TABS.map(function(t){ return '<button class="ooto-tab' + (t.key===active?' active':'') + '" type="button" data-tab="' + t.key + '">' + esc(t.name) + '</button>'; }).join('');
     }
-    function renderPanel(){ panelEl.innerHTML = active==='info' ? infoPanelHTML() : designerPanelHTML(active); }
+    function renderPanel(){ panelEl.innerHTML = bannerHTML() + (active==='info' ? infoPanelHTML() : designerPanelHTML(active)); }
     function render(){ renderTabs(); renderPanel(); }
 
     tabsEl.addEventListener('click', function(e){ var b = e.target.closest('.ooto-tab'); if (!b) return; active = b.getAttribute('data-tab'); render(); });
@@ -1320,7 +1346,10 @@
 
     DATA = seed(); render();
     fetch('/api/ooto').then(function(r){ return r.ok ? r.json() : null; }).then(function(res){
-      if (res && res.data && typeof res.data === 'object'){ DATA = ensureAll(res.data); render(); }
+      if (!res) return;
+      if (res.perms) PERMS = { owner:!!res.perms.owner, designerKey:res.perms.designerKey || null };
+      if (res.data && typeof res.data === 'object') DATA = ensureAll(res.data);
+      render();
     }).catch(function(){});
   })();
 
